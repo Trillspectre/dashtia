@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
-{% block scripts %}{% endblock scripts %}
+{% load static %}
+{% block scripts %}
+<script src ="{% static 'stats/dashboard.js' %}" defer></script>
+{% endblock scripts %}
 
 {% block content %}
 hello world
