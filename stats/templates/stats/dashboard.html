@@ -22,4 +22,11 @@
         <canvas id="myChart"></canvas>
     </div>
 </div>
+<div id="data-box">
+    {% if data %}
+        {% for el in data %}
+            <p> {{el.owner}}: {{el.value}}</p>
+        {% endfor %}
+    {% endif %}
+</div>
 {% endblock content %}

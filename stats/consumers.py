@@ -1,6 +1,6 @@
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-import json
-
+from channels.db import database_sync_to_async
+from .models import Statistic, DataItem
 class DashboardConsumer(AsyncJsonWebsocketConsumer):
 
     async def connect(self):
@@ -23,6 +23,9 @@ class DashboardConsumer(AsyncJsonWebsocketConsumer):
         sender = content["sender"]
 
         print(message, sender)
+        dashboard_slug = self.dashboard_slug
+
+        await self.save_data_item(sender, message, dashboard_slug)
 
         await self.channel_layer.group_send(self.room_group_name, {
             'type': 'statistics_message',
@@ -33,8 +36,16 @@ class DashboardConsumer(AsyncJsonWebsocketConsumer):
     async def statistics_message(self, event):
         message = event['message']
         sender = event['sender']
-        await self.send(text_data=json.dumps({
+        await self.send_json({
             'message': message,
             'sender': sender,
-        }))
+        })
+
+    @database_sync_to_async
+    def create_data_item(self, sender, message, slug):
+        obj = Statistic.objects.get(slug=slug)
+        return DataItem.objects.create(statistic=obj, value=message, owner=sender)
+
+    async def save_data_item(self, sender, message, slug):
+        await self.create_data_item(sender, message, slug)
         
