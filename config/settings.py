@@ -45,14 +45,34 @@ INSTALLED_APPS = [
     'channels',
 ]
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
-        },
+# Channel Layers Configuration with Redis fallback
+try:
+    # Try to use Redis if available (production/with Redis server)
+    REDIS_URL = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379')
+    
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                "hosts": [REDIS_URL] if REDIS_URL.startswith('redis://') else [('127.0.0.1', 6379)],
+            },
+        }
     }
-}
+    
+    # Test Redis connection by importing redis and attempting connection
+    import redis
+    r = redis.Redis.from_url(REDIS_URL)
+    r.ping()  # This will fail if Redis is not available
+    print("✅ Using Redis for Channel Layer")
+    
+except (ImportError, redis.ConnectionError, redis.TimeoutError, Exception) as e:
+    # Fallback to InMemory for development
+    print(f"⚠️  Redis not available ({e}), falling back to InMemory Channel Layer")
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        }
+    }
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
