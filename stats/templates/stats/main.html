@@ -5,7 +5,7 @@
 {% if qs %}
     <ul>
         {% for el in qs %}
-            <li>{{ el.name }}</li>
+            <li><a href="{{el.get_absolute_url}}">{{ el.name }}</a></li>
         {% endfor %}
     </ul>
 
