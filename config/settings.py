@@ -32,7 +32,7 @@ DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
 ALLOWED_HOSTS = [
     '.herokuapp.com',
-    'dashtia.herokuapp.com',
+    'dashtia-a4f2cf03bc67.herokuapp.com',
     '127.0.0.1',
     'localhost',
 ]
@@ -104,7 +104,7 @@ MIDDLEWARE = [
 # CSRF Settings for Heroku
 CSRF_TRUSTED_ORIGINS = [
     'https://*.herokuapp.com',
-    'https://dashtia.herokuapp.com',
+    'https://dashtia-a4f2cf03bc67.herokuapp.com',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
 ]
