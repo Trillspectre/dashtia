@@ -42,12 +42,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'stats',
-    'channels',
+    # 'channels',  # Install with: pip install channels channels-redis
 ]
 
 # Channel Layers Configuration with Redis fallback
 try:
     # Try to use Redis if available (production/with Redis server)
+    import redis
     REDIS_URL = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379')
     
     CHANNEL_LAYERS = {
@@ -59,13 +60,12 @@ try:
         }
     }
     
-    # Test Redis connection by importing redis and attempting connection
-    import redis
+    # Test Redis connection by attempting connection
     r = redis.Redis.from_url(REDIS_URL)
     r.ping()  # This will fail if Redis is not available
     print("✅ Using Redis for Channel Layer")
     
-except (ImportError, redis.ConnectionError, redis.TimeoutError, Exception) as e:
+except Exception as e:
     # Fallback to InMemory for development
     print(f"⚠️  Redis not available ({e}), falling back to InMemory Channel Layer")
     CHANNEL_LAYERS = {
@@ -102,8 +102,8 @@ TEMPLATES = [
     },
 ]
 
-# WSGI_APPLICATION = 'config.wsgi.application'
-ASGI_APPLICATION = 'config.asgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
+# ASGI_APPLICATION = 'config.asgi.application'  # Enable when channels is installed
 
 
 # Database

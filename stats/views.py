@@ -2,11 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
 from .models import Statistic, DataItem
 from django.db.models import Sum
-from faker import Faker
+# from faker import Faker  # Install with: pip install faker
 
 # Create your views here.
 
-fake = Faker()
+# fake = Faker()  # Enable when faker is installed
 def main(request):
     qs = Statistic.objects.all()
     if request.method == 'POST':
@@ -22,7 +22,7 @@ def dashboard(request, slug):
         'name': obj.name,
         'slug': obj.slug,
         'data': obj.data,
-        'user': request.user.username if request.user.username else fake.name()
+        'user': request.user.username if request.user.username else 'Anonymous User'  # Change to fake.name() when faker is installed
     })
 
 
