@@ -103,11 +103,24 @@ MIDDLEWARE = [
 
 # CSRF Settings for Heroku
 CSRF_TRUSTED_ORIGINS = [
-    'https://*.herokuapp.com',
-    'https://dashtia-a4f2cf03bc67.herokuapp.com',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
 ]
+
+# Add Heroku app URL from environment variable
+heroku_app_url = os.environ.get('CSRF_TRUSTED_ORIGINS')
+if heroku_app_url:
+    CSRF_TRUSTED_ORIGINS.append(heroku_app_url)
+else:
+    # Fallback for local development or if env var not set
+    CSRF_TRUSTED_ORIGINS.append('https://dashtia-a4f2cf03bc67.herokuapp.com')
+
+# Additional CSRF settings for debugging
+if DEBUG:
+    CSRF_COOKIE_SECURE = False
+    CSRF_COOKIE_HTTPONLY = False
+    CSRF_USE_SESSIONS = False
+    CSRF_COOKIE_SAMESITE = 'Lax'
 
 # Dashtia app configured above
 
@@ -208,3 +221,8 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     USE_TZ = True
+else:
+    # Development/Debug specific settings
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
