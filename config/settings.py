@@ -41,18 +41,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'django.contrib.sites',  # Temporarily commented out
-    # 'allauth',  # Not installed
-    # 'allauth.account',  # Not installed
-    # 'allauth.socialaccount',  # Not installed
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'stats',
     'home',  # Added after creating the app
-    # 'channels',  # Not installed
+    'channels',
 ]
 
-# SITE_ID = 1  # Temporarily commented out (needs django.contrib.sites)
-# LOGIN_REDIRECT_URL = '/'  # Temporarily commented out (needs allauth)
-# LOGOUT_REDIRECT_URL = '/'  # Temporarily commented out (needs allauth)
+SITE_ID = 1
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Channel Layers Configuration with Redis fallback
 try:
@@ -91,7 +91,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'allauth.account.middleware.AccountMiddleware',  # Temporarily commented out
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -155,7 +155,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-# ACCOUNT_EMAIL_VERIFICATION = 'none'  # Temporarily commented out (needs allauth)
+ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 LANGUAGE_CODE = 'en-us'
 

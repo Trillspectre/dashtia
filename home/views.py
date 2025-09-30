@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout as auth_logout, authenticate
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_protect
+from django.utils.decorators import method_decorator
 
 def home(request):
     return render(request, 'home/index.html')
@@ -8,6 +11,8 @@ def home(request):
 def about(request):
     return render(request, 'home/about.html')
 
+@never_cache
+@csrf_protect
 def signup(request):
     error_message = None
     
@@ -39,7 +44,13 @@ def logout(request):
     auth_logout(request)
     return redirect('home')
 
+@never_cache
+@csrf_protect
 def user_login(request):
+    # If user is already authenticated, redirect to home
+    if request.user.is_authenticated:
+        return redirect('home')
+    
     error_message = None
     
     if request.method == 'POST':
@@ -53,7 +64,12 @@ def user_login(request):
                 return redirect('home')
             else:
                 error_message = "Invalid username or password. Please try again."
-
+        else:
+            # Check if this is a CSRF failure
+            if 'csrfmiddlewaretoken' in request.POST:
+                error_message = "Your session has expired. Please try logging in again."
+            else:
+                error_message = "Please correct the errors below."
     else:
         form = AuthenticationForm()
     

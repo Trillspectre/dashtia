@@ -28,12 +28,12 @@ class DashboardConsumer(AsyncJsonWebsocketConsumer):
         await self.save_data_item(sender, message, dashboard_slug)
 
         await self.channel_layer.group_send(self.room_group_name, {
-            'type': 'statistics_message',
+            'type': 'Kpis_message',
             'message': message,
             'sender': sender,
         })
 
-    async def statistics_message(self, event):
+    async def Kpis_message(self, event):
         message = event['message']
         sender = event['sender']
         await self.send_json({

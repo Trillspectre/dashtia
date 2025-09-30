@@ -20,7 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    # path("accounts/", include("allauth.urls")),  # Temporarily commented out - allauth not installed
+    path("accounts/", include("allauth.urls")),
     path('admin/', admin.site.urls),
     path('', include('home.urls')),  # Add this for home
     path('stats/', include('stats.urls', namespace='stats')),
