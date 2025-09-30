@@ -32,14 +32,10 @@ DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
 ALLOWED_HOSTS = [
     '.herokuapp.com',
+    'dashtia.herokuapp.com',
     '127.0.0.1',
     'localhost',
 ]
-
-# Add your specific Heroku app URL if you know it
-HEROKU_APP_NAME = os.environ.get('HEROKU_APP_NAME')
-if HEROKU_APP_NAME:
-    ALLOWED_HOSTS.append(f'{HEROKU_APP_NAME}.herokuapp.com')
 
 
 # Application definition
@@ -108,15 +104,12 @@ MIDDLEWARE = [
 # CSRF Settings for Heroku
 CSRF_TRUSTED_ORIGINS = [
     'https://*.herokuapp.com',
+    'https://dashtia.herokuapp.com',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
-    # Add your specific Heroku URL here
-    # 'https://your-app-name.herokuapp.com',
 ]
 
-# Add specific app URL if available
-if HEROKU_APP_NAME:
-    CSRF_TRUSTED_ORIGINS.append(f'https://{HEROKU_APP_NAME}.herokuapp.com')
+# Dashtia app configured above
 
 ROOT_URLCONF = 'config.urls'
 
