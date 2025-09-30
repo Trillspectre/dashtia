@@ -20,6 +20,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    # path("accounts/", include("allauth.urls")),  # Temporarily commented out - allauth not installed
     path('admin/', admin.site.urls),
-    path('', include('stats.urls', namespace='stats')),
+    path('', include('home.urls')),  # Add this for home
+    path('stats/', include('stats.urls', namespace='stats')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

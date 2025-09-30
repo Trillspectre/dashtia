@@ -41,14 +41,22 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'django.contrib.sites',  # Temporarily commented out
+    # 'allauth',  # Not installed
+    # 'allauth.account',  # Not installed
+    # 'allauth.socialaccount',  # Not installed
     'stats',
-    # 'channels',  # Install with: pip install channels channels-redis
+    'home',  # Added after creating the app
+    # 'channels',  # Not installed
 ]
+
+# SITE_ID = 1  # Temporarily commented out (needs django.contrib.sites)
+# LOGIN_REDIRECT_URL = '/'  # Temporarily commented out (needs allauth)
+# LOGOUT_REDIRECT_URL = '/'  # Temporarily commented out (needs allauth)
 
 # Channel Layers Configuration with Redis fallback
 try:
     # Try to use Redis if available (production/with Redis server)
-    import redis
     REDIS_URL = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379')
     
     CHANNEL_LAYERS = {
@@ -60,7 +68,8 @@ try:
         }
     }
     
-    # Test Redis connection by attempting connection
+    # Test Redis connection by importing redis and attempting connection
+    import redis
     r = redis.Redis.from_url(REDIS_URL)
     r.ping()  # This will fail if Redis is not available
     print("✅ Using Redis for Channel Layer")
@@ -82,6 +91,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'allauth.account.middleware.AccountMiddleware',  # Temporarily commented out
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -102,8 +112,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
-# ASGI_APPLICATION = 'config.asgi.application'  # Enable when channels is installed
+# WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
 
 
 # Database
@@ -144,6 +154,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
+
+# ACCOUNT_EMAIL_VERIFICATION = 'none'  # Temporarily commented out (needs allauth)
 
 LANGUAGE_CODE = 'en-us'
 
