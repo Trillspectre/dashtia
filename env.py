@@ -9,3 +9,7 @@ os.environ.setdefault(
 os.environ.setdefault(
     "CLOUDINARY_URL", "cloudinary://771451762784326:gWcURE5S9HyNmLlT4C0QsK-s9Dw@dn09vuboj"
 )
+# choose which DEBUG method to use manualy by Commenting in or out the relevant variable
+# os.environ['DEBUG'] = 'True'  # For local development
+
+# os.environ['DEBUG'] = 'False'  # To test production-like behavior locally
