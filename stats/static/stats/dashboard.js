@@ -4,7 +4,10 @@ const user = document.getElementById('user').textContent.trim()
 const submitBtn =document.getElementById('submit-btn')
 const dataInput = document.getElementById('data-input')
 const dataBox = document.getElementById('data-box')
-const socket = new WebSocket(`ws://${window.location.host}/ws/${dashboardSlug}/`);
+
+// Use secure WebSocket (wss://) for HTTPS sites, insecure (ws://) for HTTP sites
+const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+const socket = new WebSocket(`${protocol}//${window.location.host}/ws/${dashboardSlug}/`);
 
 socket.onopen = function(e) {
     console.log('WebSocket connected successfully');
