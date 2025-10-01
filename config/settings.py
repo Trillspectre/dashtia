@@ -210,19 +210,18 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Production Security Settings
+# Simplified Security Settings for Student Project
 if not DEBUG:
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_REDIRECT_EXEMPT = []
-    # SECURE_SSL_REDIRECT = True  # Disabled - Heroku handles HTTPS
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    USE_TZ = True
+    # Keep essential security for production
+    SESSION_COOKIE_SECURE = True    # Secure cookies over HTTPS
+    CSRF_COOKIE_SECURE = True       # CSRF protection over HTTPS
+    USE_TZ = True                   # Timezone awareness
+    
+    # Optional: Basic security headers (can disable if causing issues)
+    # SECURE_BROWSER_XSS_FILTER = True
+    # SECURE_CONTENT_TYPE_NOSNIFF = True
 else:
-    # Development/Debug specific settings
+    # Development settings - relaxed for easier debugging
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
