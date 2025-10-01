@@ -1,4 +1,4 @@
-console.log('hello world')
+console.log('Dashboard JS v2.0 - WebSocket Protocol Fix Loaded')
 const dashboardSlug = document.getElementById('dashboard-slug').textContent.trim()
 const user = document.getElementById('user').textContent.trim()
 const submitBtn =document.getElementById('submit-btn')
@@ -7,6 +7,7 @@ const dataBox = document.getElementById('data-box')
 
 // Use secure WebSocket (wss://) for HTTPS sites, insecure (ws://) for HTTP sites
 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+console.log('Using WebSocket protocol:', protocol)
 const socket = new WebSocket(`${protocol}//${window.location.host}/ws/${dashboardSlug}/`);
 
 socket.onopen = function(e) {
