@@ -77,19 +77,22 @@ const drawChart = async() => {
     try {
         const data = await fetchChartData()
         const {chartData, chartLabels} = data
+        
+        // Get the chart type value from the DOM element
+        const currentChartType = chartType ? chartType.textContent.trim() : 'bar';
 
         chart = new Chart(ctx, {
-            type: chartType,
+            type: currentChartType,
             data: {
                 labels: chartLabels,
                 datasets: [{
-                    label: getDatasetlabel(chartType),
+                    label: getDatasetlabel(currentChartType),
                     data: chartData,
                     backgroundColor: getColors(chartData.length),
                     borderWidth: 1
                 }]
             },
-            options: getChartOptions(chartType)
+            options: getChartOptions(currentChartType)
         });
     } catch (error) {
         console.error('Error drawing chart:', error);
@@ -109,6 +112,60 @@ const updateChart = async() => {
             console.error('Error updating chart:', error);
         }
     }
+}
+
+// Helper functions for different chart types
+const getDatasetlabel = (type) => {
+    const labels = {
+        'pie': '% of contribution',
+        'bar': 'Contribution Amount',
+        'line': 'Contribution Trend',
+        'doughnut': '% of contribution',
+        'radar': 'Performance Metrics',
+        'polarArea': 'Data Distribution'
+    };
+    return labels[type] || 'Data';
+}
+
+// Function to get colors based on chart type and data length
+const getColors = (dataLength) => {
+    const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+    return colors.slice(0, dataLength);
+}
+
+// Function to get chart-specific options
+const getChartOptions = (type) => {
+    // Ensure type is a string and provide fallback
+    const chartType = type && typeof type === 'string' ? type : 'bar';
+    
+    const baseOptions = {
+        responsive: true,
+        plugins: {
+            legend: { position: 'top' },
+            title: { 
+                display: true, 
+                text: `Data Contributions by User (${chartType.toUpperCase()})`
+            }
+        }
+    };
+
+    // Add specific options for different chart types
+    if (chartType === 'bar') {
+        baseOptions.scales = {
+            y: { beginAtZero: true }
+        };
+    }
+    
+    if (chartType === 'line') {
+        baseOptions.scales = {
+            y: { beginAtZero: true }
+        };
+        baseOptions.elements = {
+            line: { tension: 0.1 }
+        };
+    }
+
+    return baseOptions;
 }
 
 drawChart()

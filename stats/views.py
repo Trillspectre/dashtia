@@ -1,16 +1,46 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, View
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
-from django.db.models import Sum
+from django.db.models import Sum, Q, Avg
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from faker import Faker
 from .models import Statistic, DataItem
 
 # Create your views here.
 
 fake = Faker()
+
+
+# KPI permission mixin
+class KPIPermissionMixin(LoginRequiredMixin):
+    """
+    Mixin to handle KPI-specific permissions
+    """
+    def can_edit_kpi(self, kpi):
+        """Check if current user can edit the KPI"""
+        user = self.request.user
+
+        if user.is_staff or user.is_superuser:
+            return True
+        
+        return kpi.owner == user
+    
+    def can_view_kpi(self, kpi):
+        """Check if current user can view the KPI"""
+        user = self.request.user
+
+        if user.is_staff or user.is_superuser:
+            return True
+        
+        if kpi.is_public:
+            return True
+            
+        return kpi.owner == user
+
+
 # Standard class based views
 class StatisticListCreateView(ListView):
     """
@@ -20,13 +50,25 @@ class StatisticListCreateView(ListView):
     template_name = 'stats/main.html'
     context_object_name = 'qs'
     
+    def get_queryset(self):
+
+        user = self.request.user
+
+        if user.is_staff or user.is_superuser:
+            return Statistic.objects.all()
+        else:
+            return Statistic.objects.filter(
+                Q(is_public=True) | Q(owner=user)
+            )
     def post(self, request, *args, **kwargs):
         """Handle POST requests to create new statistics"""
         new_stat = request.POST.get('new-statistic')
         chart_type = request.POST.get('chart-type', 'pie')
+        is_public = request.POST.get('is_public', True)
         if new_stat:
             obj, created = Statistic.objects.get_or_create(
                 name=new_stat,
+                owner=request.user,
                 defaults={'chart_type': chart_type}
             )
             if created:
@@ -42,9 +84,9 @@ class StatisticListCreateView(ListView):
         # Stay on same page instead of redirecting
         return self.get(request, *args, **kwargs)
 
-class DashboardView(DetailView):
+class DashboardView(KPIPermissionMixin, DetailView):
     """
-    Display dashboard for a specific statistic
+    Display dashboard for a specific statistic with permission checking
     """
     model = Statistic
     template_name = 'stats/dashboard.html'
@@ -52,6 +94,15 @@ class DashboardView(DetailView):
     slug_url_kwarg = 'slug'
     context_object_name = 'statistic'
     
+    def get_object(self, queryset = None):
+        obj = super().get_object(queryset)
+
+        if not self.can_view_kpi(obj):
+            raise PermissionDenied(
+                "You don't have permission to view this"
+            )
+        return obj
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         obj = self.get_object()
@@ -66,10 +117,14 @@ class DashboardView(DetailView):
             'name': obj.name,
             'slug': obj.slug,
             'chart_type': obj.chart_type,
-            'data': obj.data.order_by('-id'),  # Show latest first
+            'data': obj.data.order_by('-id'),  
             'user': user_display,
             'total_entries': obj.data.count(),
-            'can_contribute': True,  # You can add permission logic here later
+            'can_contribute': True,  
+            'can_edit': self.can_edit_kpi(obj),
+            'can_view': self.can_view_kpi(obj),
+            'is_owner': obj.owner == self.request.user,
+            'is_admin': self.request.user.is_staff or self.request.user.is_superuser,
         })
         return context
 
@@ -94,9 +149,10 @@ class ChartDataAPIView(View):
 
 # Class based Views
 
-class AuthenticatedDashboardView(LoginRequiredMixin, DashboardView):
+class AuthenticatedDashboardView(DashboardView):
     """
     Dashboard view that requires user authentication
+    (Already inherits LoginRequiredMixin through KPIPermissionMixin)
     """
     login_url = '/login/'
     redirect_field_name = 'next'
@@ -108,19 +164,41 @@ class AuthenticatedDashboardView(LoginRequiredMixin, DashboardView):
         context['is_authenticated'] = True
         return context
 
-class StatisticEditView(UpdateView):
+class StatisticEditView(KPIPermissionMixin, UpdateView):
     """
-    View for editing existing statistics
+    View for editing existing statistics with permission checking
     """
     model = Statistic
-    fields = ['name', 'chart_type']
+    fields = ['name', 'chart_type', 'is_public']
     template_name = 'stats/edit_statistic.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
     
+    def get_object(self, queryset = None):
+        obj = super().get_object(queryset)
+
+        if not self.can_edit_kpi(obj):
+            raise PermissionDenied(
+                "You do not have permission to edit this KPI"
+                "You can only edit KPIs that you have created"
+            )
+        
+        return obj
+    
+    def get_form(self, form_class=None):
+
+        form = super().get_form(form_class)
+
+        if not (self.request.user.is_staff or self.request.user.is_superuser):
+            if 'is public' in form.fields:
+                form.fields['is_public'].widget.attrs['disabled'] = True
+                form.fields['is_public'].help_text = "Contact admin to change visibility"
+
+        return form
+
     def form_valid(self, form):
         messages.success(
-            self.request, 
+            self.request,
             f'Statistic "{form.instance.name}" updated successfully!'
         )
         return super().form_valid(form)
@@ -182,7 +260,7 @@ class StatisticContextMixin:
                 'total_data_points': obj.data.count(),
                 'latest_update': obj.data.first(),
                 'unique_contributors': obj.data.values_list('owner', flat=True).distinct().count(),
-                'average_value': obj.data.aggregate(avg=models.Avg('value'))['avg'],
+                'average_value': obj.data.aggregate(avg=Avg('value'))['avg'],
             })
         return context
 # The Dashboard View
@@ -224,3 +302,8 @@ class ProtectedDashboardView(StatisticPermissionMixin, DashboardView):
         obj = self.get_object()
         context['can_contribute'] = self.can_user_contribute(obj)
         return context
+    def dispatch(self, request, *args, **kwargs):
+
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)

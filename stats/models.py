@@ -24,6 +24,17 @@ class Statistic(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='statistics',
+        help_text="User who created this KPI"
+    )
+    is_public = models.BooleanField(
+        default=True,
+        help_text="Whether this KPI is visible to all users"
+    )
+
     def get_absolute_url(self):
         return reverse("stats:dashboard", kwargs={"slug": self.slug})
     

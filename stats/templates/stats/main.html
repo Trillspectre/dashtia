@@ -26,6 +26,12 @@
                             <option value="polarArea">Polar Area</option>
                         </select>
                     </div>
+                    <div class="col-md-3">
+                        <input name="is_public" class="form-check-input" type="checkbox" id="is_public" checked>
+                        <label class="form-check-label" for="is_public">
+                            Public
+                        </label>
+                    </div>
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-primary w-100">Create KPI</button>
                     </div>
@@ -52,11 +58,20 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <h5 class="card-title">{{ el.name }}</h5>
+                                <h5 class="card-title">
+                                    {{ el.name }}
+                                    {% if el.owner == user %}
+                                        <small class="badge bg-primary">Yours</small>
+                                    {% endif %}
+                                    {% if not el.is_public %}
+                                        <small class="badge bg-warning">Private</small>
+                                    {% endif %}
+                                </h5>
                                 <p class="card-text">
                                     <small class="text-muted">
                                         Chart: {{ el.get_chart_type_display }} | 
-                                        Data Points: {{ el.data.count }}
+                                        Data Points: {{ el.data.count }} |
+                                        Owner: {{ el.owner.username }}
                                     </small>
                                 </p>
                             </div>
@@ -65,9 +80,17 @@
                             <a href="{{ el.get_absolute_url }}" class="btn btn-primary">
                                 <i class="fas fa-chart-bar"></i> Dashboard
                             </a>
-                            <a href="{% url 'stats:edit' el.slug %}" class="btn btn-outline-secondary">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
+                            
+                            <!-- Only show edit button if user has permission -->
+                            {% if user.is_staff or user.is_superuser or el.owner == user %}
+                                <a href="{% url 'stats:edit' el.slug %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                            {% else %}
+                                <span class="btn btn-outline-secondary disabled" title="You can only edit your own KPIs">
+                                    <i class="fas fa-lock"></i> No Edit Access
+                                </span>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
