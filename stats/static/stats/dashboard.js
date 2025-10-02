@@ -4,7 +4,7 @@ const user = document.getElementById('user').textContent.trim()
 const submitBtn =document.getElementById('submit-btn')
 const dataInput = document.getElementById('data-input')
 const dataBox = document.getElementById('data-box')
-
+const chartType = document.getElementById('chart-type')
 // Use secure WebSocket (wss://) for HTTPS sites, insecure (ws://) for HTTP sites
 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 console.log('Using WebSocket protocol:', protocol)
@@ -79,35 +79,17 @@ const drawChart = async() => {
         const {chartData, chartLabels} = data
 
         chart = new Chart(ctx, {
-            type: 'pie',
+            type: chartType,
             data: {
                 labels: chartLabels,
                 datasets: [{
-                    label: '% of contribution',
+                    label: getDatasetlabel(chartType),
                     data: chartData,
-                    backgroundColor: [
-                        '#FF6384',
-                        '#36A2EB',
-                        '#FFCE56',
-                        '#4BC0C0',
-                        '#9966FF',
-                        '#FF9F40'
-                    ],
+                    backgroundColor: getColors(chartData.length),
                     borderWidth: 1
                 }]
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: true,
-                        text: 'Data Contributions by User'
-                    }
-                }
-            }
+            options: getChartOptions(chartType)
         });
     } catch (error) {
         console.error('Error drawing chart:', error);

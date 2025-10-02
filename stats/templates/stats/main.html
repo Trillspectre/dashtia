@@ -1,21 +1,86 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-<form method="POST">
-    {% csrf_token %}
-    <div class="form-group">
-        <input type="text" class="form-control" name="new-statistic">
-        <button type="submit" class="btn btn-primary mt-3">+ add</button>
+<div class="container mt-4">
+    <h1>KPI Dashboard</h1>
+    
+    <!-- Inline KPI Creation Form -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Create New KPI</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <input type="text" name="new-statistic" class="form-control" placeholder="Enter KPI name" required>
+                    </div>
+                    <div class="col-md-4">
+                        <select name="chart-type" class="form-select">
+                            <option value="pie">Pie Chart</option>
+                            <option value="bar">Bar Chart</option>
+                            <option value="doughnut">Doughnut</option>
+                            <option value="line">Line Chart</option>
+                            <option value="radar">Radar Chart</option>
+                            <option value="polarArea">Polar Area</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Create KPI</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
-</form>
-{% if qs %}
-    <ul>
-        {% for el in qs %}
-            <li><a href="{{el.get_absolute_url}}">{{ el.name }}</a></li>
-        {% endfor %}
-    </ul>
 
-{% endif %}
+    <!-- Display Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Existing KPIs List -->
+    <div class="row">
+        {% for el in qs %}
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h5 class="card-title">{{ el.name }}</h5>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        Chart: {{ el.get_chart_type_display }} | 
+                                        Data Points: {{ el.data.count }}
+                                    </small>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="btn-group w-100" role="group">
+                            <a href="{{ el.get_absolute_url }}" class="btn btn-primary">
+                                <i class="fas fa-chart-bar"></i> Dashboard
+                            </a>
+                            <a href="{% url 'stats:edit' el.slug %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <h4>No KPIs Created Yet</h4>
+                    <p>Create your first KPI using the form above!</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 
 {% endblock content %}

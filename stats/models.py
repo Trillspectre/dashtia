@@ -1,12 +1,28 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.urls import reverse
 # Create your models here.
 
 
 class Statistic(models.Model):
+    CHART_TYPE_CHOICES =[
+        ('pie', 'Pie Chart'),
+        ('bar', 'Bar Chart'),
+        ('doughnut', 'Doughnut Chart'),
+        ('line', 'Line Chart'),
+        ('radar', 'Radar Chart'),
+        ('polarArea', 'Polar Area Chart'),
+    ]
     name = models.CharField(max_length=200)
     slug = models.SlugField(blank=True)
+    chart_type = models.CharField(
+        max_length=20,
+        choices=CHART_TYPE_CHOICES,
+        default='pie'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def get_absolute_url(self):
         return reverse("stats:dashboard", kwargs={"slug": self.slug})

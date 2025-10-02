@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from django.views.generic import ListView, DetailView, CreateView, View
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.db.models import Sum
@@ -11,9 +11,10 @@ from .models import Statistic, DataItem
 # Create your views here.
 
 fake = Faker()
+# Standard class based views
 class StatisticListCreateView(ListView):
     """
-    Display all statistics and handle creating new ones in a single view
+    Display all statistics and create new ones in a single view
     """
     model = Statistic
     template_name = 'stats/main.html'
@@ -22,11 +23,23 @@ class StatisticListCreateView(ListView):
     def post(self, request, *args, **kwargs):
         """Handle POST requests to create new statistics"""
         new_stat = request.POST.get('new-statistic')
+        chart_type = request.POST.get('chart-type', 'pie')
         if new_stat:
-            obj, created = Statistic.objects.get_or_create(name=new_stat)
+            obj, created = Statistic.objects.get_or_create(
+                name=new_stat,
+                defaults={'chart_type': chart_type}
+            )
             if created:
-                messages.success(request, f'Statistics "{obj.name}" created successfully!')
-            return redirect("stats:dashboard", obj.slug)
+                messages.success(
+                    request, 
+                    f'KPI "{obj.name}" created successfully!'
+                )
+            else:
+                messages.warning(
+                    request,
+                    f'KPI "{obj.name}" already exists!'
+                )
+        # Stay on same page instead of redirecting
         return self.get(request, *args, **kwargs)
 
 class DashboardView(DetailView):
@@ -52,6 +65,7 @@ class DashboardView(DetailView):
         context.update({
             'name': obj.name,
             'slug': obj.slug,
+            'chart_type': obj.chart_type,
             'data': obj.data.order_by('-id'),  # Show latest first
             'user': user_display,
             'total_entries': obj.data.count(),
@@ -78,9 +92,7 @@ class ChartDataAPIView(View):
             'success': True
         })
 
-# ===============================
-# ADVANCED CLASS-BASED VIEWS
-# ===============================
+# Class based Views
 
 class AuthenticatedDashboardView(LoginRequiredMixin, DashboardView):
     """
@@ -96,25 +108,29 @@ class AuthenticatedDashboardView(LoginRequiredMixin, DashboardView):
         context['is_authenticated'] = True
         return context
 
-class StatisticCreateView(CreateView):
+class StatisticEditView(UpdateView):
     """
-    Dedicated view for creating new statistics with form validation
+    View for editing existing statistics
     """
     model = Statistic
-    fields = ['name']
-    template_name = 'stats/create_statistic.html'
-    success_url = reverse_lazy('stats:main')
+    fields = ['name', 'chart_type']
+    template_name = 'stats/edit_statistic.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
     
     def form_valid(self, form):
-        messages.success(self.request, f'Statistic "{form.instance.name}" created successfully!')
+        messages.success(
+            self.request, 
+            f'Statistic "{form.instance.name}" updated successfully!'
+        )
         return super().form_valid(form)
     
     def get_success_url(self):
-        return reverse_lazy('stats:dashboard', kwargs={'slug': self.object.slug})
+        return reverse_lazy('stats:main')
 
 class UserStatisticsView(LoginRequiredMixin, ListView):
     """
-    Show statistics where user has contributed data
+    Show statistics where user has added data
     """
     model = Statistic
     template_name = 'stats/user_stats.html'
@@ -129,9 +145,7 @@ class UserStatisticsView(LoginRequiredMixin, ListView):
         return Statistic.objects.filter(id__in=user_stats_ids)
 
 class StatisticDetailAPIView(View):
-    """
-    API endpoint for detailed statistic information
-    """
+
     def get(self, request, slug):
         obj = get_object_or_404(Statistic, slug=slug)
         
@@ -155,13 +169,9 @@ class StatisticDetailAPIView(View):
             ]
         })
 
-# ===============================
-# MIXINS FOR REUSABLE FUNCTIONALITY
-# ===============================
-
 class StatisticContextMixin:
     """
-    Mixin to add common statistic-related context
+    Mixin to add context
     """
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -175,11 +185,9 @@ class StatisticContextMixin:
                 'average_value': obj.data.aggregate(avg=models.Avg('value'))['avg'],
             })
         return context
-
+# The Dashboard View
 class EnhancedDashboardView(StatisticContextMixin, DashboardView):
-    """
-    Dashboard with enhanced statistics and context
-    """
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         obj = self.get_object()
@@ -194,13 +202,10 @@ class EnhancedDashboardView(StatisticContextMixin, DashboardView):
         })
         return context
 
-# ===============================
-# PERMISSION-BASED VIEWS
-# ===============================
-
+#The Permissions to edit dashboards
 class StatisticPermissionMixin:
     """
-    Mixin to handle statistic-specific permissions
+    Mixin to handle stats permissions
     """
     def can_user_contribute(self, statistic):
         """Override this method to implement custom permission logic"""
@@ -219,4 +224,3 @@ class ProtectedDashboardView(StatisticPermissionMixin, DashboardView):
         obj = self.get_object()
         context['can_contribute'] = self.can_user_contribute(obj)
         return context
-# Old function-based views removed - now using class-based views above
