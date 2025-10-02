@@ -1,11 +1,16 @@
 from django.urls import path
-from .views import main, dashboard, chart_data
+from .views import (
+    StatisticListCreateView,
+    DashboardView,
+    ChartDataAPIView,
+    StatisticCreateView
+)
 
 app_name = 'stats'
 
 urlpatterns = [
-    path('', main, name='main'),
-    path('<slug>/', dashboard, name='dashboard'),
-    path('<slug>/chart/', chart_data, name='chart'),
-
+    path('', StatisticListCreateView.as_view(), name='main'),
+    path('create/', StatisticCreateView.as_view(), name='create'),
+    path('<slug:slug>/', DashboardView.as_view(), name='dashboard'),
+    path('<slug:slug>/chart/', ChartDataAPIView.as_view(), name='chart'),
 ]
