@@ -1,13 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, View
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, View, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from django.db.models import Sum, Q, Avg
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from faker import Faker
-from .models import Statistic, DataItem
+from .models import Statistic, DataItem, Team, TeamMembership
 
 # Create your views here.
 
@@ -26,8 +27,43 @@ class KPIPermissionMixin(LoginRequiredMixin):
         if user.is_staff or user.is_superuser:
             return True
         
-        return kpi.owner == user
+        if kpi.owner == user:
+            return True
+        
+        if kpi.visibility == 'public':
+            return True
+        elif kpi.visibility == 'team':
+
+            user_teams = user.team_membership.values_list('team_id', flat=True)
+            kpi_teams = kpi.teams.values_list('id', flat=True)
+            return bool(set(user_teams) & set(kpi_teams))
+        
+        return False
     
+    def get_user_accessible_teams(self, user):
+
+        if user.is_staff or user.is_superuser:
+            return Team.objects.all()
+        
+        return Team.objects.filter(
+            Q(memberships__user=user) |
+            Q(is_private=False)
+        ).distinct()
+    
+    def get_team_kpi_count(self, team, user):
+        """Get count of KPIs accessible to user in this team"""
+        team_kpis = Statistic.objects.filter(
+            Q(teams=team, visibility='team') |
+            Q(visibility='public')
+        ).distinct()
+        
+        # Filter by permission
+        accessible_count = 0
+        for kpi in team_kpis:
+            if self.can_view_kpi(kpi):
+                accessible_count += 1
+        return accessible_count
+
     def can_view_kpi(self, kpi):
         """Check if current user can view the KPI"""
         user = self.request.user
@@ -35,8 +71,13 @@ class KPIPermissionMixin(LoginRequiredMixin):
         if user.is_staff or user.is_superuser:
             return True
         
-        if kpi.is_public:
+        if kpi.visibility == 'public':
             return True
+        elif kpi.visibility == 'team':
+            # Check if user is member of any team that has access
+            user_teams = user.team_memberships.values_list('team_id', flat=True)
+            kpi_teams = kpi.teams.values_list('id', flat=True)
+            return bool(set(user_teams) & set(kpi_teams))
             
         return kpi.owner == user
 
@@ -51,14 +92,17 @@ class StatisticListCreateView(ListView):
     context_object_name = 'qs'
     
     def get_queryset(self):
-
         user = self.request.user
 
+        if not user.is_authenticated:
+            # Anonymous users can only see public statistics
+            return Statistic.objects.filter(visibility='public')
+        
         if user.is_staff or user.is_superuser:
             return Statistic.objects.all()
         else:
             return Statistic.objects.filter(
-                Q(is_public=True) | Q(owner=user)
+                Q(visibility='public') | Q(owner=user)
             )
     def post(self, request, *args, **kwargs):
         """Handle POST requests to create new statistics"""
@@ -83,6 +127,48 @@ class StatisticListCreateView(ListView):
                 )
         # Stay on same page instead of redirecting
         return self.get(request, *args, **kwargs)
+
+class TeamDashboardSelectorView(KPIPermissionMixin, TemplateView):
+    template_name = 'stats/team_dashboard_selector.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        dropdown_options = []
+
+        personal_count = Statistic.objects.filter(owner=user).count()
+        dropdown_options.append({
+            'value': f'personal_{user.id}',
+            'label': f'My Personal KPIs ({personal_count})',
+            'type': 'personal'
+        })
+
+        accessible_teams = self.get_user_accessible_teams(user)
+        for team in accessible_teams:
+            team_kpi_count = self.get_team_kpi_count(team, user)
+            dropdown_options.append({
+                'value': f'team_{team.id}',
+                'label': f'{team.name} ({team_kpi_count} KPIs)',
+                'type': 'team'
+            })
+
+        if user.is_staff or user.is_superuser:
+            # All users option for admins
+            for other_user in User.objects.exclude(id=user.id):
+                user_kpi_count = Statistic.objects.filter(owner=other_user).count()
+                if user_kpi_count > 0:
+                    dropdown_options.append({
+                        'value': f'user_{other_user.id}',
+                        'label': f"{other_user.username}'s KPIs ({user_kpi_count})",
+                        'type': 'user'
+                    })
+        
+        context.update({
+            'dropdown_options': dropdown_options,
+            'is_admin': user.is_staff or user.is_superuser,
+        })
+        return context
 
 class DashboardView(KPIPermissionMixin, DetailView):
     """
@@ -127,6 +213,111 @@ class DashboardView(KPIPermissionMixin, DetailView):
             'is_admin': self.request.user.is_staff or self.request.user.is_superuser,
         })
         return context
+class TeamKPIListAPIView(LoginRequiredMixin, View):
+
+    def get(self,request):
+        selection = request.GET.get('selection', '')
+        
+        if not selection or '_' not in selection:
+            return JsonResponse({
+                'kpis': [],
+                'selection_type': 'none',
+                'success': False,
+                'error': 'Invalid selection format'
+            })
+            
+        selection_type, selection_id = selection.split('_', 1)
+
+        if selection_type == 'personal':
+            kpis = Statistic.objects.filter(owner=request.user)
+        elif selection_type == 'team':
+            team = get_object_or_404(Team, id=selection_id)
+
+            kpis = Statistic.objects.filter(
+                Q(teams=team, visibility='team') |
+                Q(visibility='public')
+                ).distinct()
+        elif selection_type == 'user' and (request.user.is_staff or request.user.is_superuser):
+            target_user = get_object_or_404(User, id=selection_id)
+            kpis = Statistic.objects.filter(owner=target_user)
+        
+        accessible_kpis = []
+        permissions_mixin = KPIPermissionMixin()
+        permissions_mixin.request = request
+
+        for kpi in kpis:
+            if permissions_mixin.can_view_kpi(kpi):
+                accessible_kpis.append({
+                    'id': kpi.id,
+                    'name': kpi.name,
+                    'slug': kpi.slug,
+                    'chart_type': kpi.chart_type,
+                    'owner': kpi.owner.username,
+                    'data_count': kpi.data.count(),
+                })
+        return JsonResponse({
+            'kpis': accessible_kpis,
+            'selection_type': selection_type,
+            'success': True
+        })
+class TeamManagementView(UserPassesTestMixin, ListView):
+    model = Team
+    template_name = 'stats/admin/team_management.html'
+    context_object_name = 'teams'
+
+    def test_func(self):
+        return self.request.user.is_staff or self.request.user.is_superuser
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['all_users'] = User.objects.filter(is_active=True)
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get('action')
+
+        if action == 'create_team':
+            team_name = request.POST.get('team_name')
+            if not team_name:
+                messages.error(request, "Team name is required")
+                return redirect('stats:team_management')
+                
+            team_description = request.POST.get('team_description', '')
+            is_private = request.POST.get('is_private') == 'on'
+            
+            try:
+                team = Team.objects.create(
+                    name=team_name,
+                    description=team_description,
+                    is_private=is_private,
+                    created_by=request.user
+                )
+                messages.success(request, f"Team '{team_name}' created successfully")
+            except Exception as e:
+                messages.error(request, f"Error creating team: {str(e)}")
+        
+        elif action == 'add_member':
+            team_id = request.POST.get('team_id')
+            user_id = request.POST.get('user_id')
+            role = request.POST.get('role', 'member')
+
+            team = get_object_or_404(Team, id=team_id)
+            user = get_object_or_404(User, id=user_id)
+
+
+            membership, created = TeamMembership.objects.get_or_create(
+                team=team,
+                user=user,
+                defaults={'role': role}
+            )
+
+            if created:
+                messages.success(request, f'{user.username} added to {team.name}')
+            else:
+                messages.info(request, f'{user.username} is already in {team.name}')
+
+        return redirect('stats:team_management')
+    
 
 class ChartDataAPIView(View):
     """
@@ -169,7 +360,7 @@ class StatisticEditView(KPIPermissionMixin, UpdateView):
     View for editing existing statistics with permission checking
     """
     model = Statistic
-    fields = ['name', 'chart_type', 'is_public']
+    fields = ['name', 'chart_type', 'visibility', 'teams']
     template_name = 'stats/edit_statistic.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
@@ -190,9 +381,9 @@ class StatisticEditView(KPIPermissionMixin, UpdateView):
         form = super().get_form(form_class)
 
         if not (self.request.user.is_staff or self.request.user.is_superuser):
-            if 'is public' in form.fields:
-                form.fields['is_public'].widget.attrs['disabled'] = True
-                form.fields['is_public'].help_text = "Contact admin to change visibility"
+            if 'visibility' in form.fields:
+                form.fields['visibility'].widget.attrs['disabled'] = True
+                form.fields['visibility'].help_text = "Contact admin to change visibility"
 
         return form
 
