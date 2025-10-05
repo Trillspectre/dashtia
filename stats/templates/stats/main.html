@@ -13,10 +13,10 @@
             <form method="POST">
                 {% csrf_token %}
                 <div class="row g-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <input type="text" name="new-statistic" class="form-control" placeholder="Enter KPI name" required>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <select name="chart-type" class="form-select">
                             <option value="pie">Pie Chart</option>
                             <option value="bar">Bar Chart</option>
@@ -27,9 +27,13 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <input name="is_public" class="form-check-input" type="checkbox" id="is_public" checked>
-                        <label class="form-check-label" for="is_public">
-                            Public
+                        <select name="visibility" class="form-select" id="visibility">
+                            <option value="private">Private 🔒</option>
+                            <option value="team">Team Members 👥</option>
+                            <option value="public" selected>Public 🌍</option>
+                        </select>
+                        <label class="form-label small" for="visibility">
+                            Visibility level
                         </label>
                     </div>
                     <div class="col-md-2">
@@ -63,15 +67,26 @@
                                     {% if el.owner == user %}
                                         <small class="badge bg-primary">Yours</small>
                                     {% endif %}
-                                    {% if not el.is_public %}
-                                        <small class="badge bg-warning">Private</small>
+                                    {% if el.visibility == 'private' %}
+                                        <small class="badge bg-danger">Private</small>
+                                    {% elif el.visibility == 'team' %}
+                                        <small class="badge bg-warning">Team members</small>
+                                    {% elif el.visibility == 'public' %}
+                                        <small class="badge bg-success">Public</small>
+                                        {% endif %}
+                                    {% if el.teams.exists %}
+                                        {% for team in el.teams.all %}
+                                            <small class="badge bg-info me-1">{{ team.name }}</small>
+                                        {% endfor %}
                                     {% endif %}
                                 </h5>
                                 <p class="card-text">
                                     <small class="text-muted">
                                         Chart: {{ el.get_chart_type_display }} | 
                                         Data Points: {{ el.data.count }} |
-                                        Owner: {{ el.owner.username }}
+                                        Owner: {{ el.owner.username }} |
+                                        Visibility: {{ el.get_visibility_display }} 
+                                        {% if el.teams.exists %} | Teams: {{ el.teams.count }}{% endif %}
                                     </small>
                                 </p>
                             </div>

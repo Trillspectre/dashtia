@@ -108,12 +108,15 @@ class StatisticListCreateView(ListView):
         """Handle POST requests to create new statistics"""
         new_stat = request.POST.get('new-statistic')
         chart_type = request.POST.get('chart-type', 'pie')
-        is_public = request.POST.get('is_public', True)
+        visibility = request.POST.get('visibility', 'public')
         if new_stat:
             obj, created = Statistic.objects.get_or_create(
                 name=new_stat,
                 owner=request.user,
-                defaults={'chart_type': chart_type}
+                defaults={
+                    'chart_type': chart_type,
+                    'visibility': visibility
+                }
             )
             if created:
                 messages.success(

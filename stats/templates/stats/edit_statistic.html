@@ -34,6 +34,27 @@
                                 <div class="text-danger">{{ form.chart_type.errors }}</div>
                             {% endif %}
                         </div>
+                        <div class="mb-3">
+                            <label for="id_visibility" class="form-label">Visibility:</label>
+                            {{ form.visibility }}
+                            {% if form.visibility.help_text %}
+                                <div class="form-text">{{ form.visibility.help_text }}</div>
+                            {% endif %}
+                            {% if form.visibility.errors %}
+                                <div class="text-danger">{{ form.visibility.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_teams" class="form-label">Teams:</label>
+                            {{ form.teams }}
+                            <div class="form-text">
+                                Select teams that can view this KPI (only applies when visibility is set to "Team Members Only")
+                            </div>
+                            {% if form.teams.errors %}
+                                <div class="text-danger">{{ form.teams.errors }}</div>
+                            {% endif %}
+
+                        </div>
 
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-success">
@@ -62,6 +83,15 @@
                     <p><strong>Chart Type:</strong> {{ object.get_chart_type_display }}</p>
                     <p><strong>Created:</strong> {{ object.created_at|date:"M d, Y" }}</p>
                     <p><strong>Data Points:</strong> {{ object.data.count }}</p>
+                    <p><strong> Visibility:</strong> {{ object.get_visibility_display }}</p>
+                        {% if object.teams.exists %}
+                    <p><strong>Teams:</strong>
+                        {% for team in object.teams.all %}
+                            <span class="badge bg-secondary me-1">{{ team.name }}</span>
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+
                 </div>
             </div>
         </div>
