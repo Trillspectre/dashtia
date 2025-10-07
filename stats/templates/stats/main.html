@@ -136,9 +136,12 @@
                                 <a href="{% url 'stats:edit' el.slug %}" class="btn btn-outline-secondary">
                                     <i class="fas fa-edit"></i> Edit
                                 </a>
-                                <button type="button" class="btn btn-outline-danger delete-kpi-btn" data-kpi-id="{{ el.id }}" data-delete-url="{% url 'stats:delete' el.id %}">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
+                                <form method="post" action="{% url 'stats:delete' el.id %}" class="d-inline delete-kpi-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger delete-kpi-btn" data-kpi-id="{{ el.id }}" data-delete-url="{% url 'stats:delete' el.id %}">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </form>
                             {% else %}
                                 <span class="btn btn-outline-secondary disabled" title="You can only edit your own KPIs">
                                     <i class="fas fa-lock"></i> No Edit Access
@@ -181,8 +184,17 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+        console.log('KPI delete DOMContentLoaded handler running');
         let currentKpiId = null;
-        const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        let deleteModal = null;
+        try {
+            if (window.bootstrap && typeof bootstrap.Modal === 'function') {
+                deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            }
+        } catch (e) {
+            console.error('Error initializing bootstrap modal', e);
+            deleteModal = null;
+        }
 
         // Toast container (for success/failure messages)
         let toastContainer = document.getElementById('toast-container');
@@ -231,7 +243,16 @@ document.addEventListener('DOMContentLoaded', function () {
             btn.addEventListener('click', function () {
                 currentKpiId = btn.getAttribute('data-kpi-id');
                 console.log('Delete clicked for KPI id:', currentKpiId);
-                deleteModal.show();
+                if (deleteModal) {
+                    deleteModal.show();
+                } else {
+                    // fallback confirm flow when bootstrap modal missing
+                    if (confirm('Are you sure you want to delete this KPI?')) {
+                        // trigger the confirm handler programmatically
+                        const confirmBtn = document.getElementById('confirmDeleteBtn');
+                        if (confirmBtn) confirmBtn.click();
+                    }
+                }
             });
         });
 
@@ -310,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     showToast('Delete fallback failed', '', 'danger');
                 }
             }).finally(() => {
-                deleteModal.hide();
+                if (deleteModal) deleteModal.hide();
                 currentKpiId = null;
             });
         });

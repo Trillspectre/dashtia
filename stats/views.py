@@ -291,8 +291,13 @@ class StatisticDeleteView(KPIPermissionMixin, View):
 
         # Record audit
         KpiDeletion.objects.create(statistic=obj, deleted_by=request.user)
+        # If this was an AJAX/JSON request, return JSON
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.META.get('HTTP_ACCEPT', '').find('application/json') != -1:
+            return JsonResponse({'success': True, 'id': obj.pk})
 
-        return JsonResponse({'success': True, 'id': obj.pk})
+        # Otherwise redirect back to the main stats page (normal form POST fallback)
+        messages.success(request, f'KPI "{obj.name}" deleted')
+        return redirect('stats:main')
 class TeamManagementView(UserPassesTestMixin, ListView):
     model = Team
     template_name = 'stats/admin/team_management.html'
