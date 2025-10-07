@@ -39,6 +39,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Individual KPI dashboard
         console.log('Initializing individual KPI dashboard');
         initializeKPIDashboard();
+        // Attach unit selectors for create/edit forms if present
+        try { showCustomUnit(); } catch(e) { /* ignore if elements missing */ }
+        try { showCustomUnitEdit(); } catch(e) { /* ignore if elements missing */ }
     } else if (dashboardSelector) {
         // Team dashboard selector
         console.log('Initializing team dashboard');
@@ -53,6 +56,9 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.log('No dashboard type detected');
     }
+    // Also attempt to attach unit selector listeners for create forms on other pages
+    try { showCustomUnit(); } catch(e) {}
+    try { showCustomUnitEdit(); } catch(e) {}
 });
 
 // ========== INDIVIDUAL KPI DASHBOARD FUNCTIONS ==========
@@ -118,13 +124,31 @@ function initializeWebSocket(slug) {
 }
 
 function handleDataSubmission() {
-    const dataValue = parseFloat(dataInput.value.trim());
-    
-    if (!dataValue) {
-        alert('Please enter a value');
+    if (!dataInput) {
+        alert('Input element not found');
         return;
     }
-    
+
+    const raw = (dataInput.value || '').trim();
+    const dataValue = parseFloat(raw);
+
+    if (isNaN(dataValue)) {
+        alert('Please enter a valid number');
+        return;
+    }
+
+    const minValue = parseFloat(dataInput.getAttribute('min'));
+    const maxValue = parseFloat(dataInput.getAttribute('max'));
+
+    if (!isNaN(minValue) && dataValue < minValue) {
+        alert(`Value must be at least ${minValue}`);
+        return;
+    }
+    if (!isNaN(maxValue) && dataValue > maxValue) {
+        alert(`Value must not exceed ${maxValue}`);
+        return;
+    }
+
     if (dashboardState.socket && dashboardState.socket.readyState === WebSocket.OPEN) {
         dashboardState.socket.send(JSON.stringify({
             'message': dataValue,
@@ -135,44 +159,34 @@ function handleDataSubmission() {
         console.error('WebSocket is not connected');
         alert('Connection error. Please refresh the page.');
     }
-    if (isNaN(dataValue)) {
-        alert('Please enter a valid number');
-        return;
-    }
-    const minValue = parseFloat(dataInput.getAttribute('min'));
-    const maxValue = parseFloat(dataInput.getAttribute('max'));
-
-    if(!isNaN(minValue) && dataValue < minValue) {
-        alert(`Value must be at least ${minValue}`);
-        return;
-
-    if(!isNaN(maxValue) && dataValue > maxValue) {
-        alert(`Value must not exceed ${maxValue}`);
-        return;
-    }    }
 }
 
 function showCustomUnit() {
-document.getElementById('unit-type').addEventListener('change', function() {
-    const customUnit = document.getElementById('custom-unit');
-    if (this.value === 'custom') {
-        customUnit.style.display = 'block';
-        customUnit.required = true;
-    } else {
-        customUnit.style.display = 'none';
-        customUnit.required = false;
-    }
-});
+    const sel = document.getElementById('unit_type');
+    const customUnit = document.getElementById('custom_unit');
+    if (!sel || !customUnit) return;
+    sel.addEventListener('change', function() {
+        if (this.value === 'custom') {
+            customUnit.style.display = 'block';
+            customUnit.required = true;
+        } else {
+            customUnit.style.display = 'none';
+            customUnit.required = false;
+        }
+    });
 }
+
 function showCustomUnitEdit() {
-document.getElementById('id_unit_type').addEventListener('change', function() {
+    const sel = document.getElementById('id_unit_type');
     const customField = document.getElementById('custom-unit-field');
-    if (this.value === 'custom') {
-        customField.style.display = 'block';
-    } else {
-        customField.style.display = 'none';
-    }
-});
+    if (!sel || !customField) return;
+    sel.addEventListener('change', function() {
+        if (this.value === 'custom') {
+            customField.style.display = 'block';
+        } else {
+            customField.style.display = 'none';
+        }
+    });
 }
 
 // ========== CHART FUNCTIONS ==========

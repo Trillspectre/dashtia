@@ -14,10 +14,10 @@
                 {% csrf_token %}
                 <div class="row g-3">
                     <div class="col-md-3">
-                        <input type="text" name="new-statistic" class="form-control" placeholder="Enter KPI name" required>
+                        <input type="text" name="new_statistic" class="form-control" placeholder="Enter KPI name" required>
                     </div>
                     <div class="col-md-2">
-                        <select name="chart-type" class="form-select">
+                        <select name="chart_type" class="form-select">
                             <option value="pie">Pie Chart</option>
                             <option value="bar">Bar Chart</option>
                             <option value="doughnut">Doughnut</option>
@@ -27,7 +27,7 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <select name="unit_type" class="form-select" id="unit-type">
+                        <select name="unit_type" class="form-select" id="unit_type">
                             <option value="number">Number</option>
                             <option value="percentage">Percentage (%)</option>
                             <option value="currency">Currency(£)</option>
@@ -60,6 +60,9 @@
                             </div>
                             <div class="col-md-3">
                                 <input type="number" name="max_value" class="form-control form-control-sm" placeholder="Max value" step="0.01">
+                            </div>
+                            <div class="col-md-3" id="custom-unit-input" style="display:none;">
+                                <input type="text" name="custom_unit" id="custom_unit" class="form-control form-control-sm" placeholder="Custom unit (e.g. chats)">
                             </div>
                         </div>
                     </div>

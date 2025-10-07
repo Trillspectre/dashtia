@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from django.db.models import Sum, Q, Avg
+from decimal import Decimal
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from faker import Faker
@@ -106,13 +107,14 @@ class StatisticListCreateView(ListView):
             )
     def post(self, request, *args, **kwargs):
         """Handle POST requests to create new statistics"""
-        new_stat = request.POST.get('new-statistic')
-        chart_type = request.POST.get('chart-type', 'pie')
+        new_stat = request.POST.get('new_statistic')
+        chart_type = request.POST.get('chart_type', 'pie')
         visibility = request.POST.get('visibility', 'public')
+        # Use underscore names to match form inputs
         unit_type = request.POST.get('unit_type', 'number')
         custom_unit = request.POST.get('custom_unit', '')
-        min_value = request.POST.get('min-value')
-        max_value = request.POST.get('max-value')
+        min_value = request.POST.get('min_value')
+        max_value = request.POST.get('max_value')
         if new_stat:
             obj, created = Statistic.objects.get_or_create(
                 name=new_stat,
@@ -121,7 +123,7 @@ class StatisticListCreateView(ListView):
                     'chart_type': chart_type,
                     'visibility': visibility,
                     'unit_type': unit_type,
-                    'custom-unit': custom_unit if unit_type == 'custom' else '',
+                    'custom_unit': custom_unit if unit_type == 'custom' else '',
                     'min_value': Decimal(min_value) if min_value else None,
                     'max_value': Decimal(max_value) if max_value else None,
                 }

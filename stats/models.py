@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.urls import reverse
+from django.core.exceptions import ValidationError
 # Create your models here.
 class Team(models.Model):
     name = models.CharField(max_length=200)
@@ -64,6 +65,13 @@ class Statistic(models.Model):
         blank=True,
         help_text="Minimum allowed value"
     )
+    max_value = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Maximum allowed value"
+    )
     CHART_TYPE_CHOICES = [
         ('pie', 'Pie Chart'),
         ('bar', 'Bar Chart'),
@@ -111,7 +119,7 @@ class Statistic(models.Model):
     def get_unit_display_name(self):
         if self.unit_type == 'custom' and self.custom_unit:
             return self.custom_unit
-        return dict(self.UNIT_TYPE_CHOICES[self.unit_type])
+        return dict(self.UNIT_TYPE_CHOICES).get(self.unit_type, 'Number')
     @property
     def data(self):
         return self.dataitem_set.all()
@@ -131,9 +139,9 @@ class DataItem(models.Model):
     owner = models.CharField(max_length=100)
     timestamp = models.DateTimeField(auto_now_add=True)
     def clean(self):
-        if self.statistic.min_value and self.value < self.statistic.min_value:
+        if self.statistic.min_value is not None and self.value < self.statistic.min_value:
             raise ValidationError(f'Value must be at least {self.statistic.min_value}')
-        if self.statistic.max_value and self.value < self.statistic.mmax_value:
+        if self.statistic.max_value is not None and self.value > self.statistic.max_value:
             raise ValidationError(f'Value must not exceed {self.statistic.max_value}')
         
 
@@ -144,8 +152,8 @@ class DataItem(models.Model):
             return f"£{self.value}"
         elif self.statistic.unit_type == 'time':
             return f"{self.value} mins"
-        elif self.statistic.unit_type == 'Custom':
-            return f"{self.value} {self.statistic.custom_unit}"
+        elif self.statistic.unit_type == 'custom':
+            return f"{self.value} {self.statistic.custom_unit or ''}".strip()
         return str(self.value)
 
     def __str__(self):

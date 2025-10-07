@@ -1,3 +1,115 @@
 from django.test import TestCase
+from decimal import Decimal
+from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 
-# Create your tests here.
+from .models import Statistic, DataItem
+
+
+class DataItemModelTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='tester', password='pass'
+        )
+        self.stat = Statistic.objects.create(
+            name='Test KPI',
+            owner=self.user,
+            unit_type='number',
+            min_value=Decimal('0.00'),
+            max_value=Decimal('100.00'),
+        )
+
+    def test_clean_raises_when_below_min(self):
+        di = DataItem(
+            statistic=self.stat, value=Decimal('-1.00'), owner='tester'
+        )
+        with self.assertRaises(ValidationError):
+            di.clean()
+
+    def test_clean_raises_when_above_max(self):
+        di = DataItem(
+            statistic=self.stat, value=Decimal('150.00'), owner='tester'
+        )
+        with self.assertRaises(ValidationError):
+            di.clean()
+
+    def test_get_formatted_value(self):
+        # percentage
+        self.stat.unit_type = 'percentage'
+        self.stat.save()
+        di = DataItem(
+            statistic=self.stat, value=Decimal('50.00'), owner='tester'
+        )
+        self.assertEqual(di.get_formatted_value(), '50.00%')
+
+        # currency
+        self.stat.unit_type = 'currency'
+        self.stat.save()
+        di = DataItem(
+            statistic=self.stat, value=Decimal('10.50'), owner='tester'
+        )
+        self.assertEqual(di.get_formatted_value(), '£10.50')
+
+        # custom
+        self.stat.unit_type = 'custom'
+        self.stat.custom_unit = 'chats'
+        self.stat.save()
+        di = DataItem(statistic=self.stat, value=Decimal('3'), owner='tester')
+        self.assertEqual(di.get_formatted_value(), '3 chats')
+
+
+class StatisticViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='creator', password='pass'
+        )
+
+    def test_create_statistic_with_units(self):
+        self.client.login(username='creator', password='pass')
+        resp = self.client.post(
+            '/stats/',
+            data={
+                'new_statistic': 'Create KPI',
+                'chart_type': 'bar',
+                'unit_type': 'custom',
+                'custom_unit': 'widgets',
+                'min_value': '1.00',
+                'max_value': '10.00',
+            },
+            follow=True,
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        stat = Statistic.objects.filter(
+            name='Create KPI', owner=self.user
+        ).first()
+        self.assertIsNotNone(stat)
+        self.assertEqual(stat.unit_type, 'custom')
+        self.assertEqual(stat.custom_unit, 'widgets')
+        self.assertEqual(stat.min_value, Decimal('1.00'))
+        self.assertEqual(stat.max_value, Decimal('10.00'))
+
+    def test_edit_statistic_updates_units(self):
+        self.client.login(username='creator', password='pass')
+        stat = Statistic.objects.create(name='EditMe', owner=self.user)
+        url = f'/stats/{stat.slug}/edit/'
+        resp = self.client.post(
+            url,
+            data={
+                'name': 'EditMe',
+                'chart_type': 'line',
+                'visibility': 'public',
+                'unit_type': 'percentage',
+                'custom_unit': '',
+                'min_value': '0.00',
+                'max_value': '100.00',
+            },
+            follow=True,
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        stat.refresh_from_db()
+        self.assertEqual(stat.unit_type, 'percentage')
+        self.assertEqual(stat.min_value, Decimal('0.00'))
+        self.assertEqual(stat.max_value, Decimal('100.00'))
+
