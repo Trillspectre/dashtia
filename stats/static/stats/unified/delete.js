@@ -37,7 +37,7 @@
                 if (deleteModal) {
                     deleteModal.show();
                 } else {
-                    if (confirm('Are you sure you want to delete this KPI?')) {
+                    if (confirm('Are you sure you want to delete this KPI? This action cannot be undone.')) {
                         const confirmBtn = document.getElementById('confirmDeleteBtn');
                         if (confirmBtn) confirmBtn.click();
                     }

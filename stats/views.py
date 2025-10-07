@@ -119,6 +119,8 @@ class StatisticListCreateView(ListView):
         # Use underscore names to match form inputs
         unit_type = request.POST.get('unit_type', 'number')
         custom_unit = request.POST.get('custom_unit', '')
+        min_value = request.POST.get('min_value')
+        max_value = request.POST.get('max_value')
         if new_stat:
             obj, created = Statistic.objects.get_or_create(
                 name=new_stat,
@@ -128,6 +130,8 @@ class StatisticListCreateView(ListView):
                     'visibility': visibility,
                     'unit_type': unit_type,
                     'custom_unit': custom_unit if unit_type == 'custom' else '',
+                    'min_value': min_value if min_value else None,
+                    'max_value': max_value if max_value else None,
                 }
             )
             if created:
@@ -299,6 +303,26 @@ class StatisticDeleteView(KPIPermissionMixin, View):
         # Otherwise redirect back to the main stats page (normal form POST fallback)
         messages.success(request, f'KPI "{obj.name}" deleted')
         return redirect('stats:main')
+
+
+class DataItemDeleteView(View):
+    """Handle deletion of an individual DataItem. POST only."""
+    def post(self, request, slug, pk):
+        item = get_object_or_404(DataItem, pk=pk, statistic__slug=slug)
+
+        # Permission: only staff/admin or the original owner (username string) may delete
+        requester = request.user
+        if not (requester.is_staff or requester.is_superuser or item.owner == getattr(requester, 'username', None)):
+            return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+
+        item.delete()
+
+        # Return JSON for AJAX requests
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.META.get('HTTP_ACCEPT', '').find('application/json') != -1:
+            return JsonResponse({'success': True, 'id': pk})
+
+        messages.success(request, 'Data point deleted')
+        return redirect('stats:dashboard', slug=slug)
 class TeamManagementView(UserPassesTestMixin, ListView):
     model = Team
     template_name = 'stats/admin/team_management.html'
@@ -399,7 +423,7 @@ class StatisticEditView(KPIPermissionMixin, UpdateView):
     View for editing existing statistics with permission checking
     """
     model = Statistic
-    fields = ['name', 'chart_type', 'visibility', 'teams', 'unit_type', 'custom_unit']
+    fields = ['name', 'chart_type', 'visibility', 'teams', 'unit_type', 'custom_unit', 'min_value', 'max_value']
     template_name = 'stats/edit_statistic.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'

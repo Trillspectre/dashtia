@@ -59,7 +59,14 @@
                                 <div class="text-danger">{{ form.custom_unit.errors }}</div>
                             {% endif %}
                         </div>
-                        <!-- min/max inputs removed -->
+                        <div class="mb-3">
+                            <label class="form-label">Allowed Range</label>
+                            <div class="d-flex gap-2">
+                                {{ form.min_value }}
+                                {{ form.max_value }}
+                            </div>
+                            <div class="form-text">Leave blank for no bound.</div>
+                        </div>
                         <!-- custom unit field handled above -->
                         <div class="mb-3">
                             <label for="id_teams" class="form-label">Teams:</label>
@@ -102,7 +109,9 @@
                     <p><strong>Data Points:</strong> {{ object.data.count }}</p>
                     <p><strong> Visibility:</strong> {{ object.get_visibility_display }}</p>
                     <p><strong>Unit Type:</strong> {{ object.get_unit_display_name }}</p>
-                    <!-- min/max display removed -->
+                    {% if object.min_value or object.max_value %}
+                        <p><strong>Allowed Range:</strong> {% if object.min_value %}{{ object.min_value }}{% else %}∞{% endif %} - {% if object.max_value %}{{ object.max_value }}{% else %}∞{% endif %}</p>
+                    {% endif %}
                     {% if object.teams.exists %}
                         <p><strong>Teams:</strong>
                             {% for team in object.teams.all %}

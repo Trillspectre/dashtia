@@ -8,7 +8,8 @@
         try { if (window.UnifiedDashboardModules.pageHelpers && typeof window.UnifiedDashboardModules.pageHelpers.initShowMoreButtons === 'function') window.UnifiedDashboardModules.pageHelpers.initShowMoreButtons(); } catch(e) {}
         try { if (window.UnifiedDashboardModules.pageHelpers && typeof window.UnifiedDashboardModules.pageHelpers.initEmailConfirm === 'function') window.UnifiedDashboardModules.pageHelpers.initEmailConfirm(); } catch(e) {}
         try { if (window.UnifiedDashboardModules.team && typeof window.UnifiedDashboardModules.team.initTeamManagementHandlers === 'function') window.UnifiedDashboardModules.team.initTeamManagementHandlers(); } catch(e) {}
-        try { if (window.UnifiedDashboardModules.delete && typeof window.UnifiedDashboardModules.delete.initDeleteHandlers === 'function') window.UnifiedDashboardModules.delete.initDeleteHandlers(); } catch(e) {}
+    try { if (window.UnifiedDashboardModules.delete && typeof window.UnifiedDashboardModules.delete.initDeleteHandlers === 'function') window.UnifiedDashboardModules.delete.initDeleteHandlers(); } catch(e) {}
+    try { if (window.UnifiedDashboardModules.delete && typeof window.UnifiedDashboardModules.delete.initDataItemDeleteHandlers === 'function') window.UnifiedDashboardModules.delete.initDataItemDeleteHandlers(); } catch(e) {}
         try { if (window.UnifiedDashboardModules.chart && typeof window.UnifiedDashboardModules.chart.drawChart === 'function') {
             const canvas = document.getElementById('myChart');
             if (canvas) window.UnifiedDashboardModules.chart.drawChart().catch(()=>{});
@@ -16,6 +17,7 @@
         try { if (window.UnifiedDashboardModules.websocket && typeof window.UnifiedDashboardModules.websocket.initWebSocket === 'function') {
             const slug = document.getElementById('dashboard-slug')?.textContent?.trim();
             if (slug) window.UnifiedDashboardModules.websocket.initWebSocket(slug);
+            try { if (typeof window.UnifiedDashboardModules.websocket.attachSendHandler === 'function') window.UnifiedDashboardModules.websocket.attachSendHandler(); } catch(e) {}
         } } catch(e) {}
     }
 

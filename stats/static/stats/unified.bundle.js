@@ -221,7 +221,8 @@
         document.querySelectorAll('.delete-kpi-btn').forEach(function (btn) {
             if (btn.__delete_initialized) return;
             btn.__delete_initialized = true;
-            btn.addEventListener('click', function () {
+            btn.addEventListener('click', function (ev) {
+                try { if (ev && typeof ev.preventDefault === 'function') ev.preventDefault(); } catch (e) {}
                 currentKpiId = btn.getAttribute('data-kpi-id');
                 if (deleteModal) {
                     deleteModal.show();
@@ -237,77 +238,180 @@
         const confirmBtnEl = document.getElementById('confirmDeleteBtn');
         if (!confirmBtnEl) return;
 
-        confirmBtnEl.addEventListener('click', function () {
+            confirmBtnEl.addEventListener('click', function () {
             if (!currentKpiId) {
                 ui && ui.showToast && ui.showToast('No KPI selected for deletion', 'danger');
                 if (deleteModal) deleteModal.hide();
                 return;
             }
+                const csrftoken = getCookie('csrftoken');
+                const btnRef = document.querySelector(`.delete-kpi-btn[data-kpi-id="${currentKpiId}"]`);
+                const deleteUrl = btnRef ? btnRef.getAttribute('data-delete-url') : `/stats/${currentKpiId}/delete/`;
 
-            const csrftoken = getCookie('csrftoken');
-            const btnRef = document.querySelector(`.delete-kpi-btn[data-kpi-id="${currentKpiId}"]`);
-            const deleteUrl = btnRef ? btnRef.getAttribute('data-delete-url') : `/stats/${currentKpiId}/delete/`;
+                const origText = confirmBtnEl.innerHTML;
+                confirmBtnEl.disabled = true;
+                confirmBtnEl.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Deleting...';
 
-            fetch(deleteUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken,
-                    'Accept': 'application/json'
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({})
-            }).then(resp => {
-                if (!resp.ok) throw resp;
-                return resp.json();
-            }).then(data => {
-                if (data.success) {
-                    const btn = btnRef || document.querySelector(`.delete-kpi-btn[data-kpi-id="${currentKpiId}"]`);
-                    if (btn) {
-                        let card = btn.closest('.col-md-6') || btn.closest('.card') || btn.parentElement;
-                        if (card && card.remove) {
-                            card.remove();
+                fetch(deleteUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({})
+                }).then(resp => {
+                    if (!resp.ok) throw resp;
+                    return resp.json();
+                }).then(data => {
+                    if (data.success) {
+                        const btn = btnRef || document.querySelector(`.delete-kpi-btn[data-kpi-id="${currentKpiId}"]`);
+                        if (btn) {
+                            let card = btn.closest('.col-md-6') || btn.closest('.card') || btn.parentElement;
+                            if (card && card.remove) {
+                                card.remove();
+                            } else {
+                                console.warn('Could not remove card node, reloading page as fallback');
+                                window.location.reload();
+                            }
                         } else {
-                            console.warn('Could not remove card node, reloading page as fallback');
+                            console.warn('Delete button element not found after successful delete, reloading');
                             window.location.reload();
                         }
+                        ui && ui.showToast && ui.showToast('KPI deleted (soft-delete)');
                     } else {
-                        console.warn('Delete button element not found after successful delete, reloading');
-                        window.location.reload();
+                        ui && ui.showToast && ui.showToast(data.error || 'Delete failed', 'danger');
                     }
-                    ui && ui.showToast && ui.showToast('KPI deleted (soft-delete)');
-                } else {
-                    ui && ui.showToast && ui.showToast(data.error || 'Delete failed', 'danger');
-                }
-            }).catch(async err => {
-                console.error('Fetch delete error', err);
-                let msg = 'Delete failed via fetch; falling back to form POST.';
-                ui && ui.showToast && ui.showToast(msg, 'warning');
+                }).catch(async err => {
+                    console.error('Fetch delete error', err);
+                    let msg = 'Delete failed via fetch; falling back to form POST.';
+                    ui && ui.showToast && ui.showToast(msg, 'warning');
 
-                try {
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = deleteUrl;
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'csrfmiddlewaretoken';
-                    input.value = csrftoken || '';
-                    form.appendChild(input);
-                    document.body.appendChild(form);
-                    form.submit();
-                } catch (e) {
-                    console.error('Fallback form POST failed', e);
-                    ui && ui.showToast && ui.showToast('Delete fallback failed', 'danger');
-                }
-            }).finally(() => {
-                if (deleteModal) deleteModal.hide();
-                currentKpiId = null;
-            });
+                    try {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = deleteUrl;
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'csrfmiddlewaretoken';
+                        input.value = csrftoken || '';
+                        form.appendChild(input);
+                        document.body.appendChild(form);
+                        form.submit();
+                    } catch (e) {
+                        console.error('Fallback form POST failed', e);
+                        ui && ui.showToast && ui.showToast('Delete fallback failed', 'danger');
+                    }
+                }).finally(() => {
+                    if (deleteModal) deleteModal.hide();
+                    currentKpiId = null;
+                    confirmBtnEl.disabled = false;
+                    confirmBtnEl.innerHTML = origText;
+                });
         });
     }
 
     window.UnifiedDashboardModules = window.UnifiedDashboardModules || {};
-    window.UnifiedDashboardModules.delete = { initDeleteHandlers, deleteKpi: null };
+    window.UnifiedDashboardModules.delete = { initDeleteHandlers, deleteKpi: null, initDataItemDeleteHandlers: null };
+})();
+
+// add data-item delete handlers for production bundle
+(function(){
+    try {
+        const ui = window.UnifiedDashboardModules && window.UnifiedDashboardModules.ui;
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function initDataItemDeleteHandlers() {
+            let currentDataItemEl = null;
+            let currentDataDeleteUrl = null;
+            let dataDeleteModal = null;
+            try {
+                if (window.bootstrap && typeof bootstrap.Modal === 'function') {
+                    dataDeleteModal = new bootstrap.Modal(document.getElementById('deleteDataConfirmModal'));
+                }
+            } catch (e) { dataDeleteModal = null; }
+
+            document.querySelectorAll('.delete-data-btn').forEach(function (btn) {
+                if (btn.__data_delete_init) return;
+                btn.__data_delete_init = true;
+                btn.addEventListener('click', function (ev) {
+                    ev.preventDefault();
+                    currentDataItemEl = btn.closest('.data-item');
+                    currentDataDeleteUrl = btn.getAttribute('data-delete-url');
+                    if (dataDeleteModal) {
+                        dataDeleteModal.show();
+                    } else {
+                        if (confirm('Delete this data point?')) {
+                            const confirmBtn = document.getElementById('confirmDeleteDataBtn');
+                            if (confirmBtn) confirmBtn.click();
+                        }
+                    }
+                });
+            });
+
+            const confirmDataBtn = document.getElementById('confirmDeleteDataBtn');
+            if (!confirmDataBtn) return;
+            confirmDataBtn.addEventListener('click', function () {
+                if (!currentDataDeleteUrl || !currentDataItemEl) {
+                    ui && ui.showToast && ui.showToast('No data point selected', 'danger');
+                    if (dataDeleteModal) dataDeleteModal.hide();
+                    return;
+                }
+
+                const csrftoken = getCookie('csrftoken');
+                const origText = confirmDataBtn.innerHTML;
+                confirmDataBtn.disabled = true;
+                confirmDataBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Deleting...';
+
+                fetch(currentDataDeleteUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({})
+                }).then(resp => {
+                    if (!resp.ok) throw resp;
+                    return resp.json();
+                }).then(data => {
+                    if (data.success) {
+                        try { currentDataItemEl.remove(); } catch (e) { currentDataItemEl.style.display = 'none'; }
+                        ui && ui.showToast && ui.showToast('Data point deleted');
+                    } else {
+                        ui && ui.showToast && ui.showToast(data.error || 'Delete failed', 'danger');
+                    }
+                }).catch(err => {
+                    console.error('Data delete error', err);
+                    ui && ui.showToast && ui.showToast('Delete failed; try refreshing', 'warning');
+                }).finally(() => {
+                    if (dataDeleteModal) dataDeleteModal.hide();
+                    currentDataItemEl = null;
+                    currentDataDeleteUrl = null;
+                    confirmDataBtn.disabled = false;
+                    confirmDataBtn.innerHTML = origText;
+                });
+            });
+        }
+
+        window.UnifiedDashboardModules.delete = window.UnifiedDashboardModules.delete || {};
+        window.UnifiedDashboardModules.delete.initDataItemDeleteHandlers = initDataItemDeleteHandlers;
+    } catch (e) { console.error('initDataItemDeleteHandlers setup failed', e); }
 })();
 
 // --- kpi-list.js ---
@@ -561,6 +665,78 @@
 
             } catch (e) { console.error('initWebSocket failed', e); }
         },
+        _validateValueAgainstInput(inputEl, val) {
+            try {
+                if (!inputEl) return { ok: true };
+                const minAttr = inputEl.getAttribute('min');
+                const maxAttr = inputEl.getAttribute('max');
+                const num = parseFloat(val);
+                if (minAttr !== null && minAttr !== '' && !isNaN(num)) {
+                    const min = parseFloat(minAttr);
+                    if (num < min) return { ok: false, error: `Value must be ≥ ${min}` };
+                }
+                if (maxAttr !== null && maxAttr !== '' && !isNaN(num)) {
+                    const max = parseFloat(maxAttr);
+                    if (num > max) return { ok: false, error: `Value must be ≤ ${max}` };
+                }
+                return { ok: true };
+            } catch (e) { return { ok: true }; }
+        },
+        attachSendHandler() {
+            try {
+                const state = window.UnifiedDashboardModules._state = window.UnifiedDashboardModules._state || {};
+                const btn = document.getElementById('submit-btn');
+                if (!btn || btn.__ws_send_attached) return;
+                btn.__ws_send_attached = true;
+                btn.addEventListener('click', function (ev) {
+                    ev.preventDefault();
+                    const input = document.getElementById('data-input');
+                    const slug = document.getElementById('dashboard-slug')?.textContent?.trim();
+                    const user = document.getElementById('user')?.textContent?.trim() || 'anonymous';
+                    if (!input) return;
+                    const val = input.value;
+                    if (val === '' || val === null || typeof val === 'undefined') return;
+
+                    const v = window.UnifiedDashboardModules.websocket._validateValueAgainstInput(input, val);
+                    if (!v.ok) {
+                        try { window.UnifiedDashboardModules.ui.showError(v.error); } catch (e) { alert(v.error); }
+                        return;
+                    }
+
+                    const socket = state.socket;
+                    if (socket && socket.readyState === WebSocket.OPEN) {
+                        try {
+                            socket.send(JSON.stringify({ sender: user, message: val }));
+                            input.value = '';
+                        } catch (e) {
+                            console.error('WS send failed', e);
+                        }
+                        return;
+                    }
+
+                    try {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = window.location.pathname;
+                        const inputEl = document.createElement('input');
+                        inputEl.type = 'hidden';
+                        inputEl.name = 'value';
+                        inputEl.value = val;
+                        form.appendChild(inputEl);
+                        const csrf = (document.querySelector('input[name=csrfmiddlewaretoken]') || {}).value || null;
+                        if (csrf) {
+                            const csrfEl = document.createElement('input');
+                            csrfEl.type = 'hidden';
+                            csrfEl.name = 'csrfmiddlewaretoken';
+                            csrfEl.value = csrf;
+                            form.appendChild(csrfEl);
+                        }
+                        document.body.appendChild(form);
+                        form.submit();
+                    } catch (e) { console.error('Fallback submit failed', e); }
+                });
+            } catch (e) { console.error('attachSendHandler failed', e); }
+        },
         closeWebSocket() {
             try { const s = window.UnifiedDashboardModules._state && window.UnifiedDashboardModules._state.socket; if (s) s.close(); } catch(e){}
         }
@@ -577,7 +753,8 @@
         try { if (window.UnifiedDashboardModules.pageHelpers && typeof window.UnifiedDashboardModules.pageHelpers.initShowMoreButtons === 'function') window.UnifiedDashboardModules.pageHelpers.initShowMoreButtons(); } catch(e) {}
         try { if (window.UnifiedDashboardModules.pageHelpers && typeof window.UnifiedDashboardModules.pageHelpers.initEmailConfirm === 'function') window.UnifiedDashboardModules.pageHelpers.initEmailConfirm(); } catch(e) {}
         try { if (window.UnifiedDashboardModules.team && typeof window.UnifiedDashboardModules.team.initTeamManagementHandlers === 'function') window.UnifiedDashboardModules.team.initTeamManagementHandlers(); } catch(e) {}
-        try { if (window.UnifiedDashboardModules.delete && typeof window.UnifiedDashboardModules.delete.initDeleteHandlers === 'function') window.UnifiedDashboardModules.delete.initDeleteHandlers(); } catch(e) {}
+    try { if (window.UnifiedDashboardModules.delete && typeof window.UnifiedDashboardModules.delete.initDeleteHandlers === 'function') window.UnifiedDashboardModules.delete.initDeleteHandlers(); } catch(e) {}
+    try { if (window.UnifiedDashboardModules.delete && typeof window.UnifiedDashboardModules.delete.initDataItemDeleteHandlers === 'function') window.UnifiedDashboardModules.delete.initDataItemDeleteHandlers(); } catch(e) {}
         try { if (window.UnifiedDashboardModules.chart && typeof window.UnifiedDashboardModules.chart.drawChart === 'function') {
             const canvas = document.getElementById('myChart');
             if (canvas) window.UnifiedDashboardModules.chart.drawChart().catch(()=>{});
@@ -585,6 +762,7 @@
         try { if (window.UnifiedDashboardModules.websocket && typeof window.UnifiedDashboardModules.websocket.initWebSocket === 'function') {
             const slug = document.getElementById('dashboard-slug')?.textContent?.trim();
             if (slug) window.UnifiedDashboardModules.websocket.initWebSocket(slug);
+            try { if (typeof window.UnifiedDashboardModules.websocket.attachSendHandler === 'function') window.UnifiedDashboardModules.websocket.attachSendHandler(); } catch(e) {}
         } } catch(e) {}
     });
 })();

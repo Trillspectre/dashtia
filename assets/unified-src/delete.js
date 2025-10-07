@@ -32,7 +32,9 @@
         document.querySelectorAll('.delete-kpi-btn').forEach(function (btn) {
             if (btn.__delete_initialized) return;
             btn.__delete_initialized = true;
-            btn.addEventListener('click', function () {
+            btn.addEventListener('click', function (ev) {
+                // prevent the form from submitting immediately
+                try { if (ev && typeof ev.preventDefault === 'function') ev.preventDefault(); } catch (e) {}
                 currentKpiId = btn.getAttribute('data-kpi-id');
                 if (deleteModal) {
                     deleteModal.show();
@@ -54,10 +56,14 @@
                 if (deleteModal) deleteModal.hide();
                 return;
             }
-
             const csrftoken = getCookie('csrftoken');
             const btnRef = document.querySelector(`.delete-kpi-btn[data-kpi-id="${currentKpiId}"]`);
             const deleteUrl = btnRef ? btnRef.getAttribute('data-delete-url') : `/stats/${currentKpiId}/delete/`;
+
+            // disable confirm button and show spinner
+            const origText = confirmBtnEl.innerHTML;
+            confirmBtnEl.disabled = true;
+            confirmBtnEl.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Deleting...';
 
             fetch(deleteUrl, {
                 method: 'POST',
@@ -113,6 +119,87 @@
             }).finally(() => {
                 if (deleteModal) deleteModal.hide();
                 currentKpiId = null;
+                // restore button
+                confirmBtnEl.disabled = false;
+                confirmBtnEl.innerHTML = origText;
+            });
+        });
+    }
+
+    // Data-item deletion (per-data-point) confirmation wiring
+    function initDataItemDeleteHandlers() {
+        let currentDataItemEl = null;
+        let currentDataDeleteUrl = null;
+        let dataDeleteModal = null;
+        try {
+            if (window.bootstrap && typeof bootstrap.Modal === 'function') {
+                dataDeleteModal = new bootstrap.Modal(document.getElementById('deleteDataConfirmModal'));
+            }
+        } catch (e) {
+            console.error('Error initializing data delete modal', e);
+            dataDeleteModal = null;
+        }
+
+        document.querySelectorAll('.delete-data-btn').forEach(function (btn) {
+            if (btn.__data_delete_init) return;
+            btn.__data_delete_init = true;
+            btn.addEventListener('click', function (ev) {
+                ev.preventDefault();
+                currentDataItemEl = btn.closest('.data-item');
+                currentDataDeleteUrl = btn.getAttribute('data-delete-url');
+                if (dataDeleteModal) {
+                    dataDeleteModal.show();
+                } else {
+                    if (confirm('Delete this data point?')) {
+                        const confirmBtn = document.getElementById('confirmDeleteDataBtn');
+                        if (confirmBtn) confirmBtn.click();
+                    }
+                }
+            });
+        });
+
+        const confirmDataBtn = document.getElementById('confirmDeleteDataBtn');
+        if (!confirmDataBtn) return;
+        confirmDataBtn.addEventListener('click', function () {
+            if (!currentDataDeleteUrl || !currentDataItemEl) {
+                ui && ui.showToast && ui.showToast('No data point selected', 'danger');
+                if (dataDeleteModal) dataDeleteModal.hide();
+                return;
+            }
+            const csrftoken = getCookie('csrftoken');
+
+            const origText = confirmDataBtn.innerHTML;
+            confirmDataBtn.disabled = true;
+            confirmDataBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Deleting...';
+
+            fetch(currentDataDeleteUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({})
+            }).then(resp => {
+                if (!resp.ok) throw resp;
+                return resp.json();
+            }).then(data => {
+                if (data.success) {
+                    try { currentDataItemEl.remove(); } catch (e) { currentDataItemEl.style.display = 'none'; }
+                    ui && ui.showToast && ui.showToast('Data point deleted');
+                } else {
+                    ui && ui.showToast && ui.showToast(data.error || 'Delete failed', 'danger');
+                }
+            }).catch(err => {
+                console.error('Data delete error', err);
+                ui && ui.showToast && ui.showToast('Delete failed; try refreshing', 'warning');
+            }).finally(() => {
+                if (dataDeleteModal) dataDeleteModal.hide();
+                currentDataItemEl = null;
+                currentDataDeleteUrl = null;
+                confirmDataBtn.disabled = false;
+                confirmDataBtn.innerHTML = origText;
             });
         });
     }
