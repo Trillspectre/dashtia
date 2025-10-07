@@ -230,6 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.delete-kpi-btn').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 currentKpiId = btn.getAttribute('data-kpi-id');
+                console.log('Delete clicked for KPI id:', currentKpiId);
                 deleteModal.show();
             });
         });
@@ -247,6 +248,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const deleteUrl = btnRef ? btnRef.getAttribute('data-delete-url') : `/stats/${currentKpiId}/delete/`;
 
             console.log('Attempting delete', { currentKpiId, deleteUrl });
+
+            // Extra debug info
+            console.log('CSRF token present?', !!csrftoken);
 
             fetch(deleteUrl, {
                 method: 'POST',
@@ -283,12 +287,28 @@ document.addEventListener('DOMContentLoaded', function () {
                     showToast(data.error || 'Delete failed', '', 'danger');
                 }
             }).catch(async err => {
-                let msg = 'Delete failed';
+                // If fetch fails or server returns error, fallback to classic form POST submission
+                console.error('Fetch delete error', err);
+                let msg = 'Delete failed via fetch; falling back to form POST.';
+                showToast(msg, '', 'warning');
+
+                // Create a fallback form and submit it (this uses normal browser POST with cookies)
                 try {
-                    const json = await err.json();
-                    msg = json.error || msg;
-                } catch (_) {}
-                showToast(msg, '', 'danger');
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = deleteUrl;
+                    // CSRF token input
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'csrfmiddlewaretoken';
+                    input.value = csrftoken || '';
+                    form.appendChild(input);
+                    document.body.appendChild(form);
+                    form.submit();
+                } catch (e) {
+                    console.error('Fallback form POST failed', e);
+                    showToast('Delete fallback failed', '', 'danger');
+                }
             }).finally(() => {
                 deleteModal.hide();
                 currentKpiId = null;
