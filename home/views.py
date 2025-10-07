@@ -8,8 +8,8 @@ from django.utils.decorators import method_decorator
 def home(request):
     return render(request, 'home/index.html')
 
-def about(request):
-    return render(request, 'home/about.html')
+def sales(request):
+    return render(request, 'home/Sales.html')
 
 @never_cache
 @csrf_protect
