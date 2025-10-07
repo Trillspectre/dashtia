@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from faker import Faker
 from .models import Statistic, DataItem, Team, TeamMembership
+from .models import KpiDeletion
 
 # Create your views here.
 
@@ -273,6 +274,25 @@ class TeamKPIListAPIView(LoginRequiredMixin, View):
             'selection_type': selection_type,
             'success': True
         })
+
+
+class StatisticDeleteView(KPIPermissionMixin, View):
+    """Handle soft-deletion of a Statistic (KPI). POST only for CSRF protection."""
+    def post(self, request, pk):
+        obj = get_object_or_404(Statistic.all_objects, pk=pk)
+
+        # Permission: only staff/admin or owner may delete
+        if not (request.user.is_staff or request.user.is_superuser or obj.owner == request.user):
+            return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+
+        # Soft-delete
+        obj.is_active = False
+        obj.save()
+
+        # Record audit
+        KpiDeletion.objects.create(statistic=obj, deleted_by=request.user)
+
+        return JsonResponse({'success': True, 'id': obj.pk})
 class TeamManagementView(UserPassesTestMixin, ListView):
     model = Team
     template_name = 'stats/admin/team_management.html'

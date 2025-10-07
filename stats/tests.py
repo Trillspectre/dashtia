@@ -113,3 +113,27 @@ class StatisticViewTests(TestCase):
         self.assertEqual(stat.min_value, Decimal('0.00'))
         self.assertEqual(stat.max_value, Decimal('100.00'))
 
+    def test_delete_statistic_by_owner_soft_deletes_and_logs(self):
+        self.client.login(username='creator', password='pass')
+        stat = Statistic.objects.create(name='DeleteMe', owner=self.user)
+        pk = stat.pk
+
+        resp = self.client.post(f'/stats/{pk}/delete/', follow=True)
+        self.assertEqual(resp.status_code, 200)
+
+        # Refresh from DB using all_objects manager
+        stat = Statistic.all_objects.get(pk=pk)
+        self.assertFalse(stat.is_active)
+
+        # Audit record should exist
+        from .models import KpiDeletion
+        self.assertTrue(KpiDeletion.objects.filter(statistic=stat).exists())
+
+    def test_delete_statistic_forbidden_for_other_user(self):
+        other = User.objects.create_user(username='other', password='pass')
+        stat = Statistic.objects.create(name='Safe', owner=self.user)
+        self.client.login(username='other', password='pass')
+
+        resp = self.client.post(f'/stats/{stat.pk}/delete/')
+        self.assertEqual(resp.status_code, 403)
+

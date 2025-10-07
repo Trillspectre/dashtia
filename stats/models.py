@@ -35,6 +35,12 @@ class TeamMembership(models.Model):
     class Meta:
         unique_together = ['team', 'user']
 
+
+class ActiveStatisticManager(models.Manager):
+    """Manager that only returns active (non-deleted) statistics by default."""
+    def get_queryset(self):
+        return super().get_queryset().filter(is_active=True)
+
 class Statistic(models.Model):
     UNIT_TYPE_CHOICES = [
         ('number', 'Number'),
@@ -113,6 +119,13 @@ class Statistic(models.Model):
         related_name='statistics',
         help_text="Teams that can view this KPI (when visibility is set to 'team')"
     )
+    # Soft-delete flag: keep records for audit/history but hide from lists
+    is_active = models.BooleanField(default=True, help_text="Soft-delete flag. Inactive items are hidden from lists.")
+
+    # Use a manager that hides soft-deleted statistics by default
+    objects = ActiveStatisticManager()
+    # Raw access to all objects (including soft-deleted)
+    all_objects = models.Manager()
 
     def get_absolute_url(self):
         return reverse("stats:dashboard", kwargs={"slug": self.slug})
@@ -159,4 +172,15 @@ class DataItem(models.Model):
     def __str__(self):
         return f"{self.owner}: {self.value}"
     
+
+class KpiDeletion(models.Model):
+    """Audit record created when a KPI is soft-deleted."""
+    statistic = models.ForeignKey(Statistic, on_delete=models.CASCADE, related_name='deletions')
+    deleted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    deleted_at = models.DateTimeField(auto_now_add=True)
+    reason = models.TextField(blank=True, default='')
+
+    def __str__(self):
+        return f"Deletion of {self.statistic.name} by {self.deleted_by} at {self.deleted_at}"
+
 
