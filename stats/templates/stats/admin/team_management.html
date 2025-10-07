@@ -19,7 +19,7 @@
                         {% if user.is_superuser %}(Admin){% endif %}
                     </div>
                 {% endif %}
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTeamModal" onclick="console.log('Button clicked')">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTeamModal">
                     <i class="fas fa-plus"></i>
                     Create New Team
                 </button>
@@ -112,7 +112,7 @@
 <div class="modal fade" id="createTeamModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="post" onsubmit="console.log('Form submitting...', this)">
+            <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="action" value="create_team">
                 <div class="modal-header">
@@ -204,47 +204,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-// Handle add member modal
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Team Management JS loaded');
-    
-    // Test modal functionality
-    const createTeamModal = document.getElementById('createTeamModal');
-    const addMemberModal = document.getElementById('addMemberModal');
-    
-    if (createTeamModal) {
-        createTeamModal.addEventListener('show.bs.modal', function() {
-            console.log('Create team modal opening');
-        });
-        
-        createTeamModal.addEventListener('shown.bs.modal', function() {
-            console.log('Create team modal opened');
-        });
-    }
-    
-    if (addMemberModal) {
-        addMemberModal.addEventListener('show.bs.modal', function (event) {
-            const button = event.relatedTarget;
-            const teamId = button.getAttribute('data-team-id');
-            const teamName = button.getAttribute('data-team-name');
-            
-            document.getElementById('member_team_id').value = teamId;
-            document.getElementById('member_team_name').textContent = teamName;
-        });
-    }
-    
-    // Test form submission
-    const forms = document.querySelectorAll('form[method="post"]');
-    forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            console.log('Form submitting:', this);
-            const formData = new FormData(this);
-            for (let [key, value] of formData.entries()) {
-                console.log(key + ': ' + value);
-            }
-        });
-    });
-});
-</script>
+<!-- Team management handlers moved to static JS: stats/static/stats/unified_dashboard.js -> initTeamManagementHandlers() -->
 {% endblock %}

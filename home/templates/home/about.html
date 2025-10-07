@@ -114,24 +114,5 @@
                 </div>
             </div>
         </div>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                document.querySelectorAll('.show-more-btn').forEach(function (btn) {
-                    btn.addEventListener('click', function () {
-                        const cardBody = btn.closest('.card-body');
-                        const content = cardBody.querySelector('.card-content');
-                        const expanded = content.getAttribute('aria-expanded') === 'true';
-                        if (expanded) {
-                            content.style.maxHeight = '220px';
-                            content.setAttribute('aria-expanded', 'false');
-                            btn.textContent = 'Show more';
-                        } else {
-                            content.style.maxHeight = 'none';
-                            content.setAttribute('aria-expanded', 'true');
-                            btn.textContent = 'Show less';
-                        }
-                    });
-                });
-            });
-        </script>
+        <!-- Show-more handlers moved to static JS: stats/static/stats/unified_dashboard.js -> initShowMoreButtons() -->
         {% endblock %}

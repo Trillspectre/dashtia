@@ -1,0 +1,11 @@
+{
+  "name": "dashtia-static-build",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build:unified": "esbuild stats/static/stats/unified/*.js --bundle --format=iife --sourcemap --outfile=stats/static/stats/unified.bundle.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.19.0"
+  }
+}
