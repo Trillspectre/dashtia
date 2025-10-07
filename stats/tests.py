@@ -1,6 +1,6 @@
 from django.test import TestCase
 from decimal import Decimal
-from django.core.exceptions import ValidationError
+# ValidationError no longer used in tests
 from django.contrib.auth.models import User
 
 from .models import Statistic, DataItem
@@ -15,23 +15,22 @@ class DataItemModelTests(TestCase):
             name='Test KPI',
             owner=self.user,
             unit_type='number',
-            min_value=Decimal('0.00'),
-            max_value=Decimal('100.00'),
+            # min/max removed
         )
 
     def test_clean_raises_when_below_min(self):
         di = DataItem(
             statistic=self.stat, value=Decimal('-1.00'), owner='tester'
         )
-        with self.assertRaises(ValidationError):
-            di.clean()
+        # min/max removed; clean() no longer raises for out-of-range values
+        di.clean()
 
     def test_clean_raises_when_above_max(self):
         di = DataItem(
             statistic=self.stat, value=Decimal('150.00'), owner='tester'
         )
-        with self.assertRaises(ValidationError):
-            di.clean()
+        # min/max removed; clean() no longer raises for out-of-range values
+        di.clean()
 
     def test_get_formatted_value(self):
         # percentage
@@ -73,8 +72,7 @@ class StatisticViewTests(TestCase):
                 'chart_type': 'bar',
                 'unit_type': 'custom',
                 'custom_unit': 'widgets',
-                'min_value': '1.00',
-                'max_value': '10.00',
+                # min/max removed from form
             },
             follow=True,
         )
@@ -86,8 +84,6 @@ class StatisticViewTests(TestCase):
         self.assertIsNotNone(stat)
         self.assertEqual(stat.unit_type, 'custom')
         self.assertEqual(stat.custom_unit, 'widgets')
-        self.assertEqual(stat.min_value, Decimal('1.00'))
-        self.assertEqual(stat.max_value, Decimal('10.00'))
 
     def test_edit_statistic_updates_units(self):
         self.client.login(username='creator', password='pass')
@@ -101,8 +97,7 @@ class StatisticViewTests(TestCase):
                 'visibility': 'public',
                 'unit_type': 'percentage',
                 'custom_unit': '',
-                'min_value': '0.00',
-                'max_value': '100.00',
+                # min/max removed from form
             },
             follow=True,
         )
@@ -110,8 +105,6 @@ class StatisticViewTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         stat.refresh_from_db()
         self.assertEqual(stat.unit_type, 'percentage')
-        self.assertEqual(stat.min_value, Decimal('0.00'))
-        self.assertEqual(stat.max_value, Decimal('100.00'))
 
     def test_delete_statistic_by_owner_soft_deletes_and_logs(self):
         self.client.login(username='creator', password='pass')

@@ -64,20 +64,7 @@ class Statistic(models.Model):
         blank=True,
         help_text="Custom unit name (e.g 'chats', 'bugs')"
     )
-    min_value = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        help_text="Minimum allowed value"
-    )
-    max_value = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        help_text="Maximum allowed value"
-    )
+    # Note: min_value and max_value removed intentionally (validation moved to callers if needed)
     CHART_TYPE_CHOICES = [
         ('pie', 'Pie Chart'),
         ('bar', 'Bar Chart'),
@@ -152,11 +139,9 @@ class DataItem(models.Model):
     owner = models.CharField(max_length=100)
     timestamp = models.DateTimeField(auto_now_add=True)
     def clean(self):
-        if self.statistic.min_value is not None and self.value < self.statistic.min_value:
-            raise ValidationError(f'Value must be at least {self.statistic.min_value}')
-        if self.statistic.max_value is not None and self.value > self.statistic.max_value:
-            raise ValidationError(f'Value must not exceed {self.statistic.max_value}')
-        
+        # Range validation removed since Statistic no longer stores min/max bounds.
+        # If you need validation based on units, implement it in callers or in a future field.
+        pass
 
     def get_formatted_value(self):
         if self.statistic.unit_type == 'percentage':

@@ -55,12 +55,7 @@
                             Advanced Options
                         </button>
                         <div class="row g-2 mt-1">
-                            <div class="col-md-3">
-                                <input type="number" name="min_value" class="form-control form-control-sm" placeholder="Min value" step="0.01">
-                            </div>
-                            <div class="col-md-3">
-                                <input type="number" name="max_value" class="form-control form-control-sm" placeholder="Max value" step="0.01">
-                            </div>
+                            <!-- min/max fields removed -->
                             <div class="col-md-3" id="custom-unit-input" style="display:none;">
                                 <input type="text" name="custom_unit" id="custom_unit" class="form-control form-control-sm" placeholder="Custom unit (e.g. chats)">
                             </div>
@@ -111,12 +106,7 @@
                                     <small class="text-muted">
                                         Chart: {{ el.get_chart_type_display }} | 
                                         Unit: {{ el.get_unit_display_name }} |
-                                        {% if el.min_value or el.max_value %}
-                                        | Range:
-                                        {% if el.min_value%}{{ el.min_value}}{% else %}∞{% endif %}
-                                        -
-                                        {% if el.max_value%}{{ el.max_value}}{% else %}∞{% endif %}
-                                        {% endif %}
+                                        <!-- range display removed -->
                                         Data Points: {{ el.data.count }} |
                                         Owner: {{ el.owner.username }} |
                                         Visibility: {{ el.get_visibility_display }} 
@@ -182,4 +172,3 @@
     </div>
 </div>
 
-<!-- Delete handlers moved to static file: stats/static/stats/unified_dashboard.js -> initDeleteHandlers() -->

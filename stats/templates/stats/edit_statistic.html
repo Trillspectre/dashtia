@@ -59,27 +59,7 @@
                                 <div class="text-danger">{{ form.custom_unit.errors }}</div>
                             {% endif %}
                         </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="id_min_value" class="form-label">Minimum Value:</label>
-                                    {{ form.min_value }}
-                                    {% if form.min_value.errors %}
-                                        <div class="text-danger">{{ form.min_value.errors }}</div>
-                                    {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="id_max_value" class="form-label">Maximum Value:</label>
-                                    {{ form.max_value }}
-                                    {% if form.max_value.errors %}
-                                        <div class="text-danger">{{ form.max_value.errors }}</div>
-                                    {% endif %}
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- min/max inputs removed -->
                         <!-- custom unit field handled above -->
                         <div class="mb-3">
                             <label for="id_teams" class="form-label">Teams:</label>
@@ -122,12 +102,7 @@
                     <p><strong>Data Points:</strong> {{ object.data.count }}</p>
                     <p><strong> Visibility:</strong> {{ object.get_visibility_display }}</p>
                     <p><strong>Unit Type:</strong> {{ object.get_unit_display_name }}</p>
-                    {% if object.min_value %}
-                        <p><strong>Min Value:</strong> {{ object.min_value }}</p>
-                    {% endif %}
-                    {% if object.max_value %}
-                        <p><strong>Max Value:</strong> {{ object.max_value }}</p>
-                    {% endif %}
+                    <!-- min/max display removed -->
                     {% if object.teams.exists %}
                         <p><strong>Teams:</strong>
                             {% for team in object.teams.all %}

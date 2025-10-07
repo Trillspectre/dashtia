@@ -1,11 +1,16 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.http import JsonResponse
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, View, TemplateView
+from django.views.generic import (
+    ListView,
+    DetailView,
+    UpdateView,
+    View,
+    TemplateView,
+)
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.urls import reverse_lazy
 from django.db.models import Sum, Q, Avg
-from decimal import Decimal
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from faker import Faker
@@ -114,8 +119,6 @@ class StatisticListCreateView(ListView):
         # Use underscore names to match form inputs
         unit_type = request.POST.get('unit_type', 'number')
         custom_unit = request.POST.get('custom_unit', '')
-        min_value = request.POST.get('min_value')
-        max_value = request.POST.get('max_value')
         if new_stat:
             obj, created = Statistic.objects.get_or_create(
                 name=new_stat,
@@ -125,8 +128,6 @@ class StatisticListCreateView(ListView):
                     'visibility': visibility,
                     'unit_type': unit_type,
                     'custom_unit': custom_unit if unit_type == 'custom' else '',
-                    'min_value': Decimal(min_value) if min_value else None,
-                    'max_value': Decimal(max_value) if max_value else None,
                 }
             )
             if created:
@@ -398,7 +399,7 @@ class StatisticEditView(KPIPermissionMixin, UpdateView):
     View for editing existing statistics with permission checking
     """
     model = Statistic
-    fields = ['name', 'chart_type', 'visibility', 'teams', 'unit_type', 'custom_unit', 'min_value', 'max_value']
+    fields = ['name', 'chart_type', 'visibility', 'teams', 'unit_type', 'custom_unit']
     template_name = 'stats/edit_statistic.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
