@@ -13,9 +13,30 @@
         <div id="user" style="display: none;">{{ user }}</div>
         <div id="chart-type" style="display: none;">{{ chart_type }}</div>
         <hr>
-        <div class="form-group">
-            <input id="data-input" class="form-control" type="number"><br>
-            <button class="btn btn-primary" id="submit-btn">Send</button>
+        <div class="mb-3">
+            <label for="data-input" class="form-label">
+                Add Data Point
+                <small class="text-muted">({{ object.get_unit_display_name }})</small>
+            </label>
+            <div class="input-group">
+                <input id="data-input" class="form-control" type="number" placeholder="Enter Value"
+                        {% if object.min_value %}min="{{ object.min_value }}" {% endif %}
+                        {% if object.max_value %}min="{{ object.max_value }}" {% endif %}
+                        step="0.01">
+                <span class="input-group-text">{{ object.get_unit_display_name }}</span>
+                <button class="btn btn-primary" id="submit-btn">Add Data</button>
+            </div>
+            {% if object.min_value or object.max_value %}
+            <div class="form-text">
+                {% if object.min_value and object.max_value %}
+                    Range: {{ object.min_value }} - {{ object.max_value }}
+                {% elif object.min_value %}
+                    Minimum: {{ object.min_value }}
+                {% elif object.max_value %}
+                    Minimum: {{ object.max_value }}
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
     </div>
 

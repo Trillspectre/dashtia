@@ -35,7 +35,36 @@ class TeamMembership(models.Model):
         unique_together = ['team', 'user']
 
 class Statistic(models.Model):
-    CHART_TYPE_CHOICES =[
+    UNIT_TYPE_CHOICES = [
+        ('number', 'Number'),
+        ('percentage', 'Percentage (%)'),
+        ('currency', 'Currency (£)' ),
+        ('time', 'Time (minutes)'),
+        ('rating', 'Rating (1-10)'),
+        ('count', 'Count/Quantity'),
+        ('score', 'Score/Points'),
+        ('custom', 'Custom Unit'),
+        
+    ]
+    unit_type = models.CharField(
+        max_length=20,
+        choices=UNIT_TYPE_CHOICES,
+        default='number',
+        help_text="Type of unit for this KPI"
+    )
+    custom_unit = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Custom unit name (e.g 'chats', 'bugs')"
+    )
+    min_value = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        help_text="Minimum allowed value"
+    )
+    CHART_TYPE_CHOICES = [
         ('pie', 'Pie Chart'),
         ('bar', 'Bar Chart'),
         ('doughnut', 'Doughnut Chart'),
@@ -79,7 +108,10 @@ class Statistic(models.Model):
 
     def get_absolute_url(self):
         return reverse("stats:dashboard", kwargs={"slug": self.slug})
-    
+    def get_unit_display_name(self):
+        if self.unit_type == 'custom' and self.custom_unit:
+            return self.custom_unit
+        return dict(self.UNIT_TYPE_CHOICES[self.unit_type])
     @property
     def data(self):
         return self.dataitem_set.all()
@@ -95,8 +127,26 @@ class Statistic(models.Model):
 
 class DataItem(models.Model):
     statistic = models.ForeignKey(Statistic, on_delete=models.CASCADE)
-    value = models.PositiveSmallIntegerField()
+    value = models.DecimalField(max_digits=10, decimal_places=2)
     owner = models.CharField(max_length=100)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    def clean(self):
+        if self.statistic.min_value and self.value < self.statistic.min_value:
+            raise ValidationError(f'Value must be at least {self.statistic.min_value}')
+        if self.statistic.max_value and self.value < self.statistic.mmax_value:
+            raise ValidationError(f'Value must not exceed {self.statistic.max_value}')
+        
+
+    def get_formatted_value(self):
+        if self.statistic.unit_type == 'percentage':
+            return f"{self.value}%"
+        elif self.statistic.unit_type == 'currency':
+            return f"£{self.value}"
+        elif self.statistic.unit_type == 'time':
+            return f"{self.value} mins"
+        elif self.statistic.unit_type == 'Custom':
+            return f"{self.value} {self.statistic.custom_unit}"
+        return str(self.value)
 
     def __str__(self):
         return f"{self.owner}: {self.value}"

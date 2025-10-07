@@ -109,13 +109,21 @@ class StatisticListCreateView(ListView):
         new_stat = request.POST.get('new-statistic')
         chart_type = request.POST.get('chart-type', 'pie')
         visibility = request.POST.get('visibility', 'public')
+        unit_type = request.POST.get('unit_type', 'number')
+        custom_unit = request.POST.get('custom_unit', '')
+        min_value = request.POST.get('min-value')
+        max_value = request.POST.get('max-value')
         if new_stat:
             obj, created = Statistic.objects.get_or_create(
                 name=new_stat,
                 owner=request.user,
                 defaults={
                     'chart_type': chart_type,
-                    'visibility': visibility
+                    'visibility': visibility,
+                    'unit_type': unit_type,
+                    'custom-unit': custom_unit if unit_type == 'custom' else '',
+                    'min_value': Decimal(min_value) if min_value else None,
+                    'max_value': Decimal(max_value) if max_value else None,
                 }
             )
             if created:
@@ -363,7 +371,7 @@ class StatisticEditView(KPIPermissionMixin, UpdateView):
     View for editing existing statistics with permission checking
     """
     model = Statistic
-    fields = ['name', 'chart_type', 'visibility', 'teams']
+    fields = ['name', 'chart_type', 'visibility', 'teams', 'unit_type', 'custom_unit', 'min_value', 'max_value']
     template_name = 'stats/edit_statistic.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'

@@ -13,10 +13,10 @@
             <form method="POST">
                 {% csrf_token %}
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <input type="text" name="new-statistic" class="form-control" placeholder="Enter KPI name" required>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <select name="chart-type" class="form-select">
                             <option value="pie">Pie Chart</option>
                             <option value="bar">Bar Chart</option>
@@ -26,7 +26,18 @@
                             <option value="polarArea">Polar Area</option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
+                        <select name="unit_type" class="form-select" id="unit-type">
+                            <option value="number">Number</option>
+                            <option value="percentage">Percentage (%)</option>
+                            <option value="currency">Currency(£)</option>
+                            <option value="time">Time (hrs)</option>
+                            <option value="rating">Rating (1-10)</option>
+                            <option value="count">Count</option>
+                            <option value="custom">Custom Unit</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
                         <select name="visibility" class="form-select" id="visibility">
                             <option value="private">Private 🔒</option>
                             <option value="team">Team Members 👥</option>
@@ -36,8 +47,21 @@
                             Visibility level
                         </label>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-1">
                         <button type="submit" class="btn btn-primary w-100">Create KPI</button>
+                    </div>
+                    <div class="mt-2">
+                        <button class="btn btn-link btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#advanced-options">
+                            Advanced Options
+                        </button>
+                        <div class="row g-2 mt-1">
+                            <div class="col-md-3">
+                                <input type="number" name="min_value" class="form-control form-control-sm" placeholder="Min value" step="0.01">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" name="max_value" class="form-control form-control-sm" placeholder="Max value" step="0.01">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -65,12 +89,12 @@
                                 <h5 class="card-title">
                                     {{ el.name }}
                                     {% if el.owner == user %}
-                                        <small class="badge bg-primary">Yours</small>
+                                        <small class="badge bg-primary">Personal KPIs</small>
                                     {% endif %}
                                     {% if el.visibility == 'private' %}
                                         <small class="badge bg-danger">Private</small>
                                     {% elif el.visibility == 'team' %}
-                                        <small class="badge bg-warning">Team members</small>
+                                        <small class="badge bg-warning">Team KPIs</small>
                                     {% elif el.visibility == 'public' %}
                                         <small class="badge bg-success">Public</small>
                                         {% endif %}
@@ -83,10 +107,18 @@
                                 <p class="card-text">
                                     <small class="text-muted">
                                         Chart: {{ el.get_chart_type_display }} | 
+                                        Unit: {{ el.get_unit_display_name }} |
+                                        {% if el.min_value or el.max_value %}
+                                        | Range:
+                                        {% if el.min_value%}{{ el.min_value}}{% else %}∞{% endif %}
+                                        -
+                                        {% if el.max_value%}{{ el.max_value}}{% else %}∞{% endif %}
+                                        {% endif %}
                                         Data Points: {{ el.data.count }} |
                                         Owner: {{ el.owner.username }} |
                                         Visibility: {{ el.get_visibility_display }} 
                                         {% if el.teams.exists %} | Teams: {{ el.teams.count }}{% endif %}
+                                        
                                     </small>
                                 </p>
                             </div>

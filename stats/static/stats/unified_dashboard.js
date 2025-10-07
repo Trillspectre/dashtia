@@ -118,7 +118,7 @@ function initializeWebSocket(slug) {
 }
 
 function handleDataSubmission() {
-    const dataValue = dataInput.value.trim();
+    const dataValue = parseFloat(dataInput.value.trim());
     
     if (!dataValue) {
         alert('Please enter a value');
@@ -135,6 +135,44 @@ function handleDataSubmission() {
         console.error('WebSocket is not connected');
         alert('Connection error. Please refresh the page.');
     }
+    if (isNaN(dataValue)) {
+        alert('Please enter a valid number');
+        return;
+    }
+    const minValue = parseFloat(dataInput.getAttribute('min'));
+    const maxValue = parseFloat(dataInput.getAttribute('max'));
+
+    if(!isNaN(minValue) && dataValue < minValue) {
+        alert(`Value must be at least ${minValue}`);
+        return;
+
+    if(!isNaN(maxValue) && dataValue > maxValue) {
+        alert(`Value must not exceed ${maxValue}`);
+        return;
+    }    }
+}
+
+function showCustomUnit() {
+document.getElementById('unit-type').addEventListener('change', function() {
+    const customUnit = document.getElementById('custom-unit');
+    if (this.value === 'custom') {
+        customUnit.style.display = 'block';
+        customUnit.required = true;
+    } else {
+        customUnit.style.display = 'none';
+        customUnit.required = false;
+    }
+});
+}
+function showCustomUnitEdit() {
+document.getElementById('id_unit_type').addEventListener('change', function() {
+    const customField = document.getElementById('custom-unit-field');
+    if (this.value === 'custom') {
+        customField.style.display = 'block';
+    } else {
+        customField.style.display = 'none';
+    }
+});
 }
 
 // ========== CHART FUNCTIONS ==========
