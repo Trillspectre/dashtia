@@ -1,3 +1,4 @@
+// Single valid websocket module
 (function(){
     window.UnifiedDashboardModules = window.UnifiedDashboardModules || {};
     const wsModule = {
@@ -15,9 +16,33 @@
 
                 socket.onmessage = function(e) {
                     try {
-                        const {sender, message} = JSON.parse(e.data);
-                        const dataBox = document.getElementById('data-box') || document.querySelector('#dashboard-content #data-box');
-                        if (dataBox) dataBox.innerHTML += `<p>${sender}: ${message}</p>`;
+                        const payload = JSON.parse(e.data);
+
+                                if (payload && payload.type === 'data_item' && payload.data_item) {
+                                    try { wsModule.addDataItemToList(payload.data_item); } catch (err) { console.error('Failed to add data item to list', err); }
+                                } else if (payload && payload.sender && payload.message) {
+                                    // Backwards compatibility: if message is a simple numeric value, treat it as a data_item
+                                    try {
+                                        const {sender, message} = payload;
+                                        let item = null;
+                                        // If message is JSON serialized data_item, attempt parse
+                                        try { const parsed = JSON.parse(message); if (parsed && typeof parsed === 'object' && (parsed.value !== undefined || parsed.id !== undefined)) item = parsed; } catch (e) {}
+                                        // If not parsed, but numeric string, create a minimal data_item
+                                        if (!item) {
+                                            const num = Number(message);
+                                            if (!isNaN(num)) {
+                                                item = { owner: sender, value: num, timestamp: null, can_delete: false };
+                                            }
+                                        }
+                                        if (item) {
+                                            try { wsModule.addDataItemToList(item); } catch (err) { console.error('Failed to add converted data item', err); }
+                                        } else {
+                                            const dataBox = document.getElementById('data-box') || document.querySelector('#dashboard-content #data-box');
+                                            if (dataBox) dataBox.innerHTML += `<p>${sender}: ${message}</p>`;
+                                        }
+                                    } catch (e) { console.error('processing legacy payload', e); }
+                                }
+
                         if (window.UnifiedDashboardModules && window.UnifiedDashboardModules.chart && typeof window.UnifiedDashboardModules.chart.updateChart === 'function') {
                             window.UnifiedDashboardModules.chart.updateChart();
                         }
@@ -29,6 +54,7 @@
 
             } catch (e) { console.error('initWebSocket failed', e); }
         },
+
         _validateValueAgainstInput(inputEl, val) {
             try {
                 if (!inputEl) return { ok: true };
@@ -46,6 +72,7 @@
                 return { ok: true };
             } catch (e) { return { ok: true }; }
         },
+
         attachSendHandler() {
             try {
                 const state = window.UnifiedDashboardModules._state = window.UnifiedDashboardModules._state || {};
@@ -102,9 +129,116 @@
                 });
             } catch (e) { console.error('attachSendHandler failed', e); }
         },
-        closeWebSocket() {
-            try { const s = window.UnifiedDashboardModules._state && window.UnifiedDashboardModules._state.socket; if (s) s.close(); } catch(e){}
-        }
+
+        // Create and append a data-item to the `#data-box` list. Expects an object like:
+        // { id, owner, value, timestamp, can_delete:boolean, delete_url }
+        addDataItemToList(item) {
+            try {
+                if (!item) return;
+                const dataBox = document.getElementById('data-box');
+                if (!dataBox) return;
+
+                // Ensure there is an <ul class="list-group"> container
+                let ul = dataBox.querySelector('ul.list-group');
+                if (!ul) {
+                    ul = document.createElement('ul');
+                    ul.className = 'list-group';
+                    dataBox.innerHTML = '';
+                    dataBox.appendChild(ul);
+                }
+
+                // Prevent duplicates: update existing element if present
+                if (item.id) {
+                    const existing = ul.querySelector(`li[data-item-id="${item.id}"]`);
+                    if (existing) {
+                        // Update value and timestamp, then return
+                        const valueSpan = existing.querySelector('.data-value');
+                        if (valueSpan) valueSpan.textContent = wsModule._formatValue(item.value);
+                        const ts = existing.querySelector('.small.text-muted');
+                        if (ts) ts.textContent = (item.timestamp || wsModule._formatTimestamp());
+                        return;
+                    }
+                }
+
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex justify-content-between align-items-center data-item';
+                if (item.id) li.setAttribute('data-item-id', item.id);
+
+                // Build left content to match template: <strong>owner</strong>: <span class="data-value">value</span><div class="small text-muted">timestamp</div>
+                const left = document.createElement('div');
+                const strong = document.createElement('strong');
+                strong.textContent = item.owner || '';
+                left.appendChild(strong);
+                left.appendChild(document.createTextNode(': '));
+                const valueSpan = document.createElement('span');
+                valueSpan.className = 'data-value';
+                valueSpan.textContent = wsModule._formatValue(item.value);
+                left.appendChild(valueSpan);
+                const tsDiv = document.createElement('div');
+                tsDiv.className = 'small text-muted';
+                tsDiv.textContent = (item.timestamp || wsModule._formatTimestamp());
+                left.appendChild(tsDiv);
+
+                li.appendChild(left);
+
+                if (item.can_delete) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'btn btn-sm btn-outline-danger ms-3 delete-data-btn';
+                    if (item.delete_url) btn.setAttribute('data-delete-url', item.delete_url);
+                    btn.setAttribute('title', 'Delete data item');
+                    btn.innerHTML = '&times;';
+                    li.appendChild(btn);
+                } else {
+                    const span = document.createElement('span');
+                    span.className = 'text-muted small';
+                    span.textContent = '\u00A0';
+                    li.appendChild(span);
+                }
+
+                // Insert at the top
+                ul.insertBefore(li, ul.firstChild);
+
+                // Re-run delete handler wiring for any newly-added button(s)
+                try {
+                    if (window.UnifiedDashboardModules && window.UnifiedDashboardModules.delete && typeof window.UnifiedDashboardModules.delete.initDataItemDeleteHandlers === 'function') {
+                        window.UnifiedDashboardModules.delete.initDataItemDeleteHandlers();
+                    }
+                } catch (e) { /* non-fatal */ }
+            } catch (e) {
+                console.error('addDataItemToList failed', e);
+            }
+        },
+
+        // Determine decimals from the data-input step attribute; fallback to 2
+        _decimalsForInput() {
+            try {
+                const inp = document.getElementById('data-input');
+                if (!inp) return 2;
+                const step = inp.getAttribute('step');
+                if (!step) return 2;
+                if (step.indexOf('.') !== -1) return step.split('.')[1].length;
+                return 0;
+            } catch (e) { return 2; }
+        },
+
+        _formatValue(v) {
+            try {
+                const decimals = this._decimalsForInput();
+                const n = Number(v);
+                if (!isFinite(n)) return String(v);
+                return n.toFixed(decimals);
+            } catch (e) { return String(v); }
+        },
+
+        _formatTimestamp(ts) {
+            try {
+                if (ts) return ts;
+                return new Date().toLocaleString();
+            } catch (e) { return '' + ts; }
+        },
+
+        closeWebSocket() { try { const s = window.UnifiedDashboardModules._state && window.UnifiedDashboardModules._state.socket; if (s) s.close(); } catch(e){} }
     };
     window.UnifiedDashboardModules.websocket = wsModule;
 })();

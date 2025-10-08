@@ -19,12 +19,20 @@
 
     function initDeleteHandlers() {
         let currentKpiId = null;
+        // keep reference to the button that opened the modal so we don't rely on querying the DOM later
+        let lastClickedDeleteBtn = null;
         let deleteModal = null;
         try {
-            if (window.bootstrap && typeof bootstrap.Modal === 'function') {
-                deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            // Only initialize bootstrap modal if the element exists and bootstrap is available.
+            const modalEl = document.getElementById('deleteConfirmModal');
+            if (modalEl && window.bootstrap && typeof bootstrap.Modal === 'function') {
+                deleteModal = new bootstrap.Modal(modalEl);
+            } else if (!modalEl) {
+                // no modal in DOM — we'll fall back to confirm() when needed
+                deleteModal = null;
             }
         } catch (e) {
+            // Defensive: log error and disable modal usage so code falls back to confirm dialog
             console.error('Error initializing bootstrap modal', e);
             deleteModal = null;
         }
@@ -36,6 +44,7 @@
                 // prevent the form from submitting immediately
                 try { if (ev && typeof ev.preventDefault === 'function') ev.preventDefault(); } catch (e) {}
                 currentKpiId = btn.getAttribute('data-kpi-id');
+                lastClickedDeleteBtn = btn;
                 if (deleteModal) {
                     deleteModal.show();
                 } else {
@@ -57,8 +66,9 @@
                 return;
             }
             const csrftoken = getCookie('csrftoken');
-            const btnRef = document.querySelector(`.delete-kpi-btn[data-kpi-id="${currentKpiId}"]`);
-            const deleteUrl = btnRef ? btnRef.getAttribute('data-delete-url') : `/stats/${currentKpiId}/delete/`;
+            // prefer the original clicked element (in case DOM changed) otherwise fall back to querying
+            const btnRef = lastClickedDeleteBtn || document.querySelector(`.delete-kpi-btn[data-kpi-id="${currentKpiId}"]`);
+            const deleteUrl = btnRef && btnRef.getAttribute ? btnRef.getAttribute('data-delete-url') : `/stats/${currentKpiId}/delete/`;
 
             // disable confirm button and show spinner
             const origText = confirmBtnEl.innerHTML;
@@ -78,18 +88,23 @@
                 if (!resp.ok) throw resp;
                 return resp.json();
             }).then(data => {
-                if (data.success) {
-                    const btn = btnRef || document.querySelector(`.delete-kpi-btn[data-kpi-id="${currentKpiId}"]`);
-                    if (btn) {
-                        let card = btn.closest('.col-md-6') || btn.closest('.card') || btn.parentElement;
-                        if (card && card.remove) {
-                            card.remove();
+                    if (data.success) {
+                    try {
+                        const btnEl = btnRef && btnRef.closest ? btnRef : (document.querySelector(`.delete-kpi-btn[data-kpi-id="${currentKpiId}"]`) || null);
+                        if (btnEl) {
+                            const card = (btnEl.closest && (btnEl.closest('.col-md-6') || btnEl.closest('.card'))) || btnEl.parentElement;
+                            if (card && typeof card.remove === 'function') {
+                                card.remove();
+                            } else {
+                                console.warn('Could not remove card node, reloading page as fallback');
+                                window.location.reload();
+                            }
                         } else {
-                            console.warn('Could not remove card node, reloading page as fallback');
+                            console.warn('Delete button element not found after successful delete, reloading');
                             window.location.reload();
                         }
-                    } else {
-                        console.warn('Delete button element not found after successful delete, reloading');
+                    } catch (e) {
+                        console.error('Error removing deleted KPI element', e);
                         window.location.reload();
                     }
                     ui && ui.showToast && ui.showToast('KPI deleted (soft-delete)');
@@ -119,6 +134,7 @@
             }).finally(() => {
                 if (deleteModal) deleteModal.hide();
                 currentKpiId = null;
+                lastClickedDeleteBtn = null;
                 // restore button
                 confirmBtnEl.disabled = false;
                 confirmBtnEl.innerHTML = origText;
@@ -132,8 +148,11 @@
         let currentDataDeleteUrl = null;
         let dataDeleteModal = null;
         try {
-            if (window.bootstrap && typeof bootstrap.Modal === 'function') {
-                dataDeleteModal = new bootstrap.Modal(document.getElementById('deleteDataConfirmModal'));
+            const dataModalEl = document.getElementById('deleteDataConfirmModal');
+            if (dataModalEl && window.bootstrap && typeof bootstrap.Modal === 'function') {
+                dataDeleteModal = new bootstrap.Modal(dataModalEl);
+            } else {
+                dataDeleteModal = null;
             }
         } catch (e) {
             console.error('Error initializing data delete modal', e);

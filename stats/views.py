@@ -90,7 +90,7 @@ class KPIPermissionMixin(LoginRequiredMixin):
 
 
 # Standard class based views
-class StatisticListCreateView(ListView):
+class StatisticListCreateView(KPIPermissionMixin, ListView):
     """
     Display all statistics and create new ones in a single view
     """
@@ -134,6 +134,16 @@ class StatisticListCreateView(ListView):
                     'max_value': max_value if max_value else None,
                 }
             )
+            # If visibility is team, attach any selected teams
+            if created and visibility == 'team':
+                team_ids = request.POST.getlist('teams')
+                if team_ids:
+                    try:
+                        teams = Team.objects.filter(id__in=team_ids)
+                        obj.teams.set(teams)
+                    except Exception:
+                        # ignore invalid team ids
+                        pass
             if created:
                 messages.success(
                     request, 
@@ -146,6 +156,17 @@ class StatisticListCreateView(ListView):
                 )
         # Stay on same page instead of redirecting
         return self.get(request, *args, **kwargs)
+    
+    def get_context_data(self, **kwargs):
+        # Provide accessible teams to the template so the create-KPI form can show the teams multi-select
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        context['user'] = user
+        try:
+            context['accessible_teams'] = self.get_user_accessible_teams(user)
+        except Exception:
+            context['accessible_teams'] = Team.objects.none()
+        return context
 
 class TeamDashboardSelectorView(KPIPermissionMixin, TemplateView):
     template_name = 'stats/team_dashboard_selector.html'

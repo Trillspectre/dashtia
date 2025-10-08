@@ -47,6 +47,15 @@
                             Visibility level
                         </label>
                     </div>
+                    <div class="col-md-3" id="teams-select-container" style="display:none;">
+                        <label for="teams" class="form-label small">Select Teams</label>
+                        <select name="teams" id="teams" class="form-select" multiple>
+                            {% for team in accessible_teams %}
+                                <option value="{{ team.id }}">{{ team.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text small">Hold Ctrl (Cmd on Mac) to select multiple teams</div>
+                    </div>
                     <div class="col-md-1">
                         <button type="submit" class="btn btn-primary w-100">Create KPI</button>
                     </div>

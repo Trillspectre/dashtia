@@ -24,32 +24,33 @@
                 <button class="btn btn-primary" id="submit-btn">Add Data</button>
             </div>
             <!-- Range info removed -->
+            <!-- data list moved here so it stays next to the input and the chart won't push it down -->
+            <div id="data-box" class="mt-3" style="max-height:420px; overflow:auto;">
+                {% if data %}
+                    <ul class="list-group">
+                    {% for el in data %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center data-item" data-item-id="{{ el.id }}">
+                            <div>
+                                <strong>{{ el.owner }}</strong>: <span class="data-value">{{ el.value }}</span>
+                                <div class="small text-muted">{{ el.timestamp }}</div>
+                            </div>
+                            {% if is_admin or el.owner == user %}
+                                <button type="button" class="btn btn-sm btn-outline-danger ms-3 delete-data-btn" data-delete-url="{% url 'stats:data_delete' slug=slug pk=el.id %}" title="Delete data item">&times;</button>
+                            {% else %}
+                                <span class="text-muted small">&nbsp;</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
         </div>
     </div>
 
     <div class="col">
         <canvas id="myChart"></canvas>
     </div>
-</div>
-<div id="data-box">
-    {% if data %}
-        <ul class="list-group">
-        {% for el in data %}
-            <li class="list-group-item d-flex justify-content-between align-items-center data-item" data-item-id="{{ el.id }}">
-                <div>
-                    <strong>{{ el.owner }}</strong>: <span class="data-value">{{ el.value }}</span>
-                    <div class="small text-muted">{{ el.timestamp }}</div>
-                </div>
-                {% if is_admin or el.owner == user %}
-                    <button type="button" class="btn btn-sm btn-outline-danger ms-3 delete-data-btn" data-delete-url="{% url 'stats:data_delete' slug=slug pk=el.id %}" title="Delete data item">&times;</button>
-                {% else %}
-                    <span class="text-muted small">&nbsp;</span>
-                {% endif %}
-            </li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-</div>
+<!-- data-box moved above under the input group -->
 <!-- KPI delete confirmation modal (same style as data-item) -->
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
@@ -71,26 +72,8 @@
 </div>
 
 <style>
-    /* Make the data-item a positioning context and absolutely place the delete button
-       so hover reveal is reliable even with Bootstrap layout. */
-    .data-item { position: relative; }
-    .delete-data-btn {
-        position: absolute;
-        right: 0.75rem;
-        top: 50%;
-        transform: translateY(-50%) scale(.95);
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity .12s ease-in-out, transform .12s ease-in-out;
-        pointer-events: none;
-    }
-    .data-item:hover .delete-data-btn,
-    .data-item:focus-within .delete-data-btn {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(-50%) scale(1);
-        pointer-events: auto;
-    }
+    .delete-data-btn { opacity: 0; transition: opacity .12s ease-in-out; pointer-events: none; }
+    .data-item:hover .delete-data-btn { opacity: 1; pointer-events: auto; }
 </style>
 
 <!-- Data item delete confirmation modal -->
