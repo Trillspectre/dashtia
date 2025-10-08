@@ -463,6 +463,26 @@
     const ui = window.UnifiedDashboardModules && window.UnifiedDashboardModules.ui;
 
     const kpiListModule = {
+        initSelector() {
+            try {
+                const selector = document.getElementById('dashboard-selector');
+                const backBtn = document.getElementById('back-to-list');
+                if (selector && !selector.__kpi_selector_init) {
+                    selector.addEventListener('change', function () {
+                        const val = selector.value;
+                        if (!val) return;
+                        kpiListModule.loadKPIsForSelection(val);
+                    });
+                    selector.__kpi_selector_init = true;
+                }
+                if (backBtn && !backBtn.__kpi_back_init) {
+                    backBtn.addEventListener('click', function () {
+                        try { window.UnifiedDashboardModules.ui.showKPIList(); } catch (e) {}
+                    });
+                    backBtn.__kpi_back_init = true;
+                }
+            } catch (e) { console.error('initSelector failed', e); }
+        },
         async loadKPIsForSelection(selection) {
             try {
                 if (!selection) return;
@@ -540,6 +560,7 @@
     };
 
     window.UnifiedDashboardModules.kpiList = kpiListModule;
+    try { if (document && document.readyState !== 'loading') kpiListModule.initSelector(); else document.addEventListener('DOMContentLoaded', () => kpiListModule.initSelector()); } catch(e){}
 })();
 
 // --- chart.js ---
