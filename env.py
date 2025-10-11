@@ -7,7 +7,7 @@ os.environ.setdefault(
     "SECRET_KEY", "django-insecure-141qyj&x=w-ra&*1mv*l$1@q=cgk5f$d#uauokjv99z&p5bf&i"
 )
 os.environ.setdefault(
-    "CLOUDINARY_URL", "cloudinary://771451762784326:gWcURE5S9HyNmLlT4C0QsK-s9Dw@dn09vuboj"
+    "CLOUDINARY_URL", "cloudinary://771451762784326:5T9GRx7KzLZifvJlzrx4HaM2oAU"
 )
 # choose which DEBUG method to use manualy by Commenting in or out the relevant variable
 # os.environ['DEBUG'] = 'True'  # For local development

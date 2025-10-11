@@ -47,10 +47,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
     'django.contrib.sites',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'cloudinary',
     'stats',
     'home',  
     'channels',
@@ -199,11 +201,49 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+# Ensure STATIC_URL begins with a leading slash so generated URLs are absolute
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+# Only add the project-level 'static' folder to STATICFILES_DIRS if it actually
+# exists on disk. On Heroku the build/dyno filesystem may not include a
+# top-level 'static' directory, which used to trigger a noisy warning from
+# collectstatic and caused static collection to skip copying files. Allowing an
+# empty list here lets Django find app-specific static/ directories (e.g.
+# stats/static/) via AppDirectoriesFinder.
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+    BASE_DIR / 'static'
+] if (BASE_DIR / 'static').exists() else []
+
+# Use WhiteNoise's compressed manifest storage in production so Heroku
+# serves stable, cacheable static files. Manifest storage will raise an
+# error during `collectstatic` if a referenced file is missing which
+# helps catch broken asset references early.
+if not DEBUG:
+    # Keep this on a separate indented line to avoid lint line-length warnings
+    STATICFILES_STORAGE = (
+        'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    )
+
+# Media files (user uploads).
+# Use Cloudinary for media storage when available (recommended for Heroku).
+# Local development will still use the filesystem (MEDIA_ROOT).
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Enable Cloudinary storage if the package is installed and we have a
+# CLOUDINARY_URL in the environment (Heroku config vars) or if
+# cloudinary_storage is present in INSTALLED_APPS.
+if 'cloudinary_storage' in INSTALLED_APPS and (
+    os.environ.get('CLOUDINARY_URL') or os.environ.get('CLOUDINARY_API_KEY')
+):
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    # Optional: allow splitting the CLOUDINARY_* environment variables
+    # instead of using a single CLOUDINARY_URL value.
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', ''),
+        'API_KEY': os.environ.get('CLOUDINARY_API_KEY', ''),
+        'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
+    }
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

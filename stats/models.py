@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.urls import reverse
 from django.core.exceptions import ValidationError
+from cloudinary.models import CloudinaryField
+
 # Create your models here.
 class Team(models.Model):
     name = models.CharField(max_length=200)
