@@ -33,7 +33,12 @@ media/
 .DS_Store
 
 # Optional: ignore compiled theme assets (untracked build output)
-stats/static/theme/
+# NOTE: previously this folder was ignored which prevented committing
+# placeholder theme assets needed for Heroku static collection. Remove
+# the explicit ignore so required theme files can be committed. Change
+# back if you prefer to keep theme assets out of the repo and build them
+# during CI instead.
+# stats/static/theme/
 
 # Ignore built unified dashboard bundles (local build output)
 stats/static/stats/*.js
