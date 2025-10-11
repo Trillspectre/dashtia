@@ -243,10 +243,10 @@ class DashboardView(KPIPermissionMixin, DetailView):
             'name': obj.name,
             'slug': obj.slug,
             'chart_type': obj.chart_type,
-            'data': obj.data.order_by('-id'),  
-            'user': user_display,
+            'data': obj.data.order_by('-id'),
+            'user_display': user_display,  # do not override `user` context provided by auth
             'total_entries': obj.data.count(),
-            'can_contribute': True,  
+            'can_contribute': True,
             'can_edit': self.can_edit_kpi(obj),
             'can_view': self.can_view_kpi(obj),
             'is_owner': obj.owner == self.request.user,
@@ -434,9 +434,9 @@ class AuthenticatedDashboardView(DashboardView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Always use authenticated user's username
-        context['user'] = self.request.user.username
-        context['is_authenticated'] = True
+        # Keep request.user intact; expose a short display name instead
+        context['user_display'] = self.request.user.username
+        context['is_authenticated'] = self.request.user.is_authenticated
         return context
 
 class StatisticEditView(KPIPermissionMixin, UpdateView):

@@ -34,6 +34,13 @@ media/
 
 # Optional: ignore compiled theme assets (untracked build output)
 stats/static/theme/
+
+# Ignore built unified dashboard bundles (local build output)
+stats/static/stats/*.js
+
+# Ignore template backup files
+templates/*.backup.html
+
 *.pyc
 __pycache__/
 .env
