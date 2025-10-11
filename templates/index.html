@@ -1,0 +1,10 @@
+{% extends 'base_theme.html' %}
+
+{% block title %}Dashtia - Home{% endblock %}
+
+{% block content %}
+    {# Reuse the hero and features markup from base_theme's default content block #}
+    {# The base_theme.html already includes the hero/feature markup as default content if not overridden.
+       To avoid duplication, just call the parent block to render that content. #}
+    {{ block.super }}
+{% endblock %}
