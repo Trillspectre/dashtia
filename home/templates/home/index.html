@@ -1,46 +1,5 @@
 {% extends 'base.html' %}
 
-{% block content %}
-<div class="jumbotron bg-light p-5 rounded-lg mb-4">
-    <h1 class="display-4">Welcome to Dashtia!</h1>
-    <p class="lead">Your personal Kpis tracking dashboard.</p>
-    <hr class="my-4">
-    <p>Track and visualize your Kpis with interactive charts and real-time updates.</p>
-    
-    {% if user.is_authenticated %}
-        <p>Welcome back, {{ user.username }}!</p>
-        <a href="{% url 'stats:main' %}" class="btn btn-primary btn-lg">View Your Kpis</a>
-    {% else %}
-        <p>Please log in to access your Kpis dashboard.</p>
-        <a href="{% url 'login' %}" class="btn btn-primary btn-lg">Login</a>
-        <a href="{% url 'signup' %}" class="btn btn-outline-primary btn-lg ms-2">Sign Up</a>
-    {% endif %}
-</div>
-
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Track Kpis</h5>
-                <p class="card-text">Create and manage custom Kpis for anything you want to measure.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Interactive Charts</h5>
-                <p class="card-text">Visualize your data with beautiful, interactive charts and graphs.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Real-time Updates</h5>
-                <p class="card-text">See your data update in real-time as you add new entries.</p>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+{# Intentionally do not override the 'content' block so the theme's default homepage sections
+   from `base_theme.html` are rendered (hero, features, etc.).
+   If you want a custom homepage in future, replace this file with your custom sections. #}

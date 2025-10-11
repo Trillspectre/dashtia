@@ -1,3 +1,39 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# SQLite
+db.sqlite3
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Node
+node_modules/
+
+# Django static files
+staticfiles/
+media/
+
+# Logs
+*.log
+
+# IDEs
+.vscode/
+.idea/
+
+# Mac
+.DS_Store
+
+# Optional: ignore compiled theme assets (untracked build output)
+stats/static/theme/
 *.pyc
 __pycache__/
 .env
