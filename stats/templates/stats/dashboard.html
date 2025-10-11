@@ -8,7 +8,14 @@
 {% block content %}
 <div class="row">
     <div class="col">
-        <h3 id = "dashboard-name">{{ name }}</h3>
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 id="dashboard-name">{{ name }}</h3>
+            {% if user.is_authenticated %}
+                <div class="text-muted small mb-2">
+                    Logged in as: {{ user.username }} {% if user.is_staff %}(Staff){% endif %} {% if user.is_superuser %}(Admin){% endif %}
+                </div>
+            {% endif %}
+        </div>
         <div id="dashboard-slug" style="display: none;">{{ slug }}</div>
         <div id="user" style="display: none;">{{ user }}</div>
         <div id="chart-type" style="display: none;">{{ chart_type }}</div>
