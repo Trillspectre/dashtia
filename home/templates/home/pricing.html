@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block head_extra %}
+<style>
+/* Pricing page adjustments: override theme defaults on this page only.
+   Placing these rules in head_extra ensures they are parsed after main.css
+   so they take effect immediately without waiting for any JS. */
+.header .navbar-area {
+    position: relative !important; /* take navbar out of absolute/fixed flow */
+    top: 0 !important;
+    width: 100% !important;
+    margin-bottom: 24px !important; /* space between navbar and content */
+    border-bottom: 1px solid rgba(49,52,80,0.06) !important;
+    z-index: 1030 !important;
+}
+
+/* Hide the Home anchor (href="#home") on the pricing page only; using
+   header-scoped selector here means the rule only lands on this page where
+   head_extra is present. */
+.header .navbar-nav a[href="#home"] {
+    display: none !important;
+}
+</style>
+<script>
+    // Add a body class so the base template can be targeted without editing it
+    try { document.documentElement.classList.add('js'); } catch(e){}
+    (function(){ if (document && document.body) { document.body.classList.add('pricing-page'); } else { document.addEventListener('DOMContentLoaded', function(){ document.body.classList.add('pricing-page'); }); } })();
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+    <h1>Pricing — Dashtia</h1>
+
+        <p class="lead">Dashtia is a powerful Kpis tracking and visualization platform.</p>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card mb-3 h-100 d-flex flex-column">
+                    <div class="card-body d-flex flex-column">
+                        <div class="card-content" style="overflow:hidden; max-height:220px;" aria-expanded="false">
+                        <h5 class="card-title">Free</h5>
+                        <p class="card-text">Core features</p>
+                        <ul>
+                            <li>Create up to 5 KPIs</li>
+                            <li>Personal dashboards only</li>
+                            <li>Manual data entry and basic Chart.js charts (pie, bar, line)</li>
+                            <li>Unit support (number, percentage, currency, custom) and min/max validation</li>
+                            <li>Basic CSV import/export</li>
+                            <li>Community support / docs only</li>
+                            <li>Web UI, no SSO or advanced integrations</li>
+                        </ul>
+                        <p class="card-text">Limits</p>
+                        <ul>
+                            <li>Max 5 KPIs</li>
+                            <li>No teams</li>
+                            <li>Data retention: 3 months</li>
+                            <li>No API access or Webhooks</li>
+                            <li>No audit logs or role-based permissions</li>
+                        </ul>
+                        </div>
+                        <div class="mt-auto pt-2 text-center">
+                            <button class="btn btn-link p-0 show-more-btn" type="button">Show more</button>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white mt-auto text-center">
+                        <a href="{% url 'signup' %}" class="btn btn-primary">Get Started</a>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-md-4">
+                <div class="card mb-3 h-100 d-flex flex-column">
+                    <div class="card-body d-flex flex-column">
+                        <div class="card-content" style="overflow:hidden; max-height:220px;" aria-expanded="false">
+                        <h5 class="card-title">Standard</h5>
+                        <p class="card-text">SME business features</p>
+                        <ul>
+                            <li>Up to 50 KPIs per workspace</li>
+                            <li>Full Team support: create teams, role-based membership</li>
+                            <li>Team visibility and team-based KPI sharing</li>
+                            <li>Real-time updates</li>
+                            <li>CSV import/export with larger file support</li>
+                            <li>Basic API access</li>
+                            <li>Scheduled reports</li>
+                            <li>12 month data retention</li>
+                            <li>Email support</li>
+                            <li>Basic audit trail of KPI changes</li>
+                        </ul>
+                        <p class="card-text">Limits</p>
+                        <ul>
+                            <li>Up to 50 KPIs, up to 50 contributors per workspace</li>
+                            <li>API rate limit (example): 1,000 requests/day (tunable)</li>
+                            <li>Data retention 12 months (option to pay for longer)</li>
+                        </ul>
+                        </div>
+                        <div class="mt-auto pt-2 text-center">
+                            <button class="btn btn-link p-0 show-more-btn" type="button">Show more</button>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white mt-auto text-center">
+                        <a href="mailto:example@gmail.com" class="btn btn-primary">Contact Sales</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card mb-3 h-100 d-flex flex-column">
+                    <div class="card-body d-flex flex-column">
+                        <div class="card-content" style="overflow:hidden; max-height:220px;" aria-expanded="false">
+                        <h5 class="card-title">Pro</h5>
+                        <p class="card-text">Enterprise/Growth features</p>
+                        <ul>
+                            <li>Unlimited KPIs</li>
+                            <li>Unlimited team members + advanced role & permission</li>
+                            <li>Single Sign-On (SAML / SSO via OIDC) and enforced login policies</li>
+                            <li>API access with higher rate limits and OAuth client credentials</li>
+                            <li>Webhooks + richer integrations (Slack, MS Teams, Zapier)</li>
+                            <li>Advanced reporting: scheduled exports, pivot/aggregation, custom dashboards</li>
+                            <li>Advanced analytics: trend detection, anomaly alerts, advanced Chart options</li>
+                            <li>Data retention & archival options configurable</li>
+                            <li>Audit logs, exportable compliance reports</li>
+                            <li>Per-KPI thresholds + multi-channel alerts (email/Slack/SMS)</li>
+                            <li>Tenant-level branding / white-labeling and custom domains</li>
+                            <li>Priority / 24x7 support, SLA</li>
+                            <li>Dedicated onboarding + training, migration assistance</li>
+                        </ul>
+                        <p class="card-text">Security add ons</p>
+                        <ul>
+                            <li>SOC2-ready controls, IP allowlisting, audit trail, encryption at rest</li>
+                            <li>Rate limits example: 100k requests/day with burst capacity</li>
+                        </ul>
+                        </div>
+                        <div class="mt-auto pt-2 text-center">
+                            <button class="btn btn-link p-0 show-more-btn" type="button">Show more</button>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white mt-auto text-center">
+                        <a href="mailto:example@gmail.com" class="btn btn-primary">Contact Sales</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Show-more handlers moved to static JS: stats/static/stats/unified_dashboard.js -> initShowMoreButtons() -->
+    </div>
+        {% endblock %}
