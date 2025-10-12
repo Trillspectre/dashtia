@@ -1,5 +1,9 @@
-<!-- Simplified single-root SVG for logo. This avoids multiple-root XML which causes browsers to reject the SVG file. -->
+<!-- Transparent logo: small accent circle + wordmark for navbar -->
 <svg xmlns="http://www.w3.org/2000/svg" width="200" height="60" viewBox="0 0 200 60" role="img" aria-label="Dashtia logo">
-  <rect width="200" height="60" fill="#2b2b2b"/>
-  <text x="16" y="38" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="28">Dashtia</text>
+  <g fill="none" fill-rule="evenodd">
+    <!-- Accent circle -->
+    <circle cx="22" cy="30" r="12" fill="#E44E83" />
+    <!-- Wordmark -->
+    <text x="44" y="38" fill="#222" font-family="'Nunito', Arial, Helvetica, sans-serif" font-size="28" font-weight="700">Dashtia</text>
+  </g>
 </svg>
