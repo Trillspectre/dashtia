@@ -78,13 +78,14 @@
 
             try{
                 document.addEventListener('click', function(ev){
-                    const addBtn = ev.target.closest && ev.target.closest('[data-team-id][data-bs-target="#addMemberModal"]');
+                    // Support both Bootstrap 5 (data-bs-*) and legacy data-* attributes
+                    const addBtn = (ev.target.closest && (ev.target.closest('[data-team-id][data-bs-target="#addMemberModal"]') || ev.target.closest('[data-team-id][data-target="#addMemberModal"]')));
                     if (addBtn){ ev.preventDefault(); const teamId = addBtn.getAttribute('data-team-id'); const teamName = addBtn.getAttribute('data-team-name') || ''; const idEl = document.getElementById('member_team_id'); const nameEl = document.getElementById('member_team_name'); if (idEl) idEl.value = teamId; if (nameEl) nameEl.textContent = teamName; debugLog('Add Member clicked', {teamId, teamName}); maybeShowModalById('addMemberModal'); return; }
 
-                    const createBtn = ev.target.closest && ev.target.closest('[data-bs-target="#createTeamModal"], button[data-bs-target="#createTeamModal"]');
+                    const createBtn = (ev.target.closest && (ev.target.closest('[data-bs-target="#createTeamModal"]') || ev.target.closest('[data-target="#createTeamModal"]') || ev.target.closest('button[data-bs-target="#createTeamModal"]') || ev.target.closest('button[data-target="#createTeamModal"]')));
                     if (createBtn){ ev.preventDefault(); debugLog('Create Team clicked'); maybeShowModalById('createTeamModal'); return; }
 
-                    const dismissBtn = ev.target.closest && ev.target.closest('[data-bs-dismiss]');
+                    const dismissBtn = ev.target.closest && ev.target.closest('[data-bs-dismiss],[data-dismiss]');
                     if (dismissBtn){ const modalAncestor = ev.target.closest && ev.target.closest('.modal'); if (modalAncestor) maybeHideModalById(modalAncestor.id); }
 
                 }, {capture: true});
@@ -92,8 +93,10 @@
 
             try{
                 document.addEventListener('click', function(ev){
-                    const btn = ev.target.closest && ev.target.closest('[data-bs-toggle="collapse"][data-bs-target]');
-                    if (!btn) return; const target = btn.getAttribute('data-bs-target') || btn.getAttribute('href'); if (!target) return; const id = (target.charAt(0) === '#') ? target.slice(1) : target; setTimeout(function(){ toggleCollapseById(id); }, 0);
+                    const btn = ev.target.closest && (ev.target.closest('[data-bs-toggle="collapse"][data-bs-target]') || ev.target.closest('[data-toggle="collapse"][data-target]'));
+                    if (!btn) return;
+                    const target = btn.getAttribute('data-bs-target') || btn.getAttribute('data-target') || btn.getAttribute('href');
+                    if (!target) return; const id = (target.charAt(0) === '#') ? target.slice(1) : target; setTimeout(function(){ toggleCollapseById(id); }, 0);
                 }, {capture: true});
             } catch(e){}
         },
