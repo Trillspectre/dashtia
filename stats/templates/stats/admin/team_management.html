@@ -19,7 +19,7 @@
                         {% if user.is_superuser %}(Admin){% endif %}
                     </div>
                 {% endif %}
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTeamModal">
+                <button class="btn btn-primary" data-toggle="modal" data-target="#createTeamModal">
                     <i class="fas fa-plus"></i>
                     Create New Team
                 </button>
@@ -56,17 +56,17 @@
                             </div>
                             
                             <div class="btn-group w-100" role="group">
-                                <button class="btn btn-outline-primary btn-sm" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#addMemberModal"
+                <button class="btn btn-outline-primary btn-sm" 
+                    data-toggle="modal" 
+                    data-target="#addMemberModal"
                                         data-team-id="{{ team.id }}"
                                         data-team-name="{{ team.name }}">
                                     <i class="fas fa-user-plus"></i>
                                     Add Member
                                 </button>
-                                <button class="btn btn-outline-info btn-sm" 
-                                        data-bs-toggle="collapse" 
-                                        data-bs-target="#members-{{ team.id }}">
+                <button class="btn btn-outline-info btn-sm" 
+                    data-toggle="collapse" 
+                    data-target="#members-{{ team.id }}">
                                     <i class="fas fa-list"></i>
                                     Members
                                 </button>
