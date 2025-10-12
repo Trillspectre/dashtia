@@ -6,6 +6,7 @@ on:
       - 'assets/unified-src/**'
       - 'package.json'
       - 'package-lock.json'
+  workflow_dispatch: {}
 
 jobs:
   build:
