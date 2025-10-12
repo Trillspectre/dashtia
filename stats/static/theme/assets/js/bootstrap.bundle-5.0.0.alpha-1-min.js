@@ -1,5 +1,4 @@
-// Placeholder bootstrap bundle
-console.log('bootstrap placeholder');
+// Placeholder bootstrap bundle (no console output in production)
 /*!
   * Bootstrap v5.0.0-alpha1 (https://getbootstrap.com/)
   * Copyright 2011-2020 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)

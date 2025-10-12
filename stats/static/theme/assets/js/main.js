@@ -1,5 +1,4 @@
-// placeholder main.js
-console.log('theme main.js placeholder');
+// theme main.js (no console output in production)
 //===== Prealoder
 
 window.onload = function () {
