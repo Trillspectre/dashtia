@@ -3,6 +3,8 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout as auth_logout, authenticate
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
+import traceback
+from django.http import HttpResponse
 
 
 def home(request):
@@ -51,35 +53,43 @@ def logout(request):
 @never_cache
 @csrf_protect
 def user_login(request):
-    # If user is already authenticated, redirect to home
-    if request.user.is_authenticated:
-        return redirect('home')
+    try:
+        # If user is already authenticated, redirect to home
+        if request.user.is_authenticated:
+            return redirect('home')
 
-    error_message = None
+        error_message = None
 
-    if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('home')
+        if request.method == 'POST':
+            form = AuthenticationForm(request, data=request.POST)
+            if form.is_valid():
+                username = form.cleaned_data.get('username')
+                password = form.cleaned_data.get('password')
+                user = authenticate(username=username, password=password)
+                if user is not None:
+                    login(request, user)
+                    return redirect('home')
+                else:
+                    error_message = (
+                        "Invalid username or password. Please try again."
+                    )
             else:
-                error_message = (
-                    "Invalid username or password. Please try again."
-                )
+                # Check if this is a CSRF failure
+                if 'csrfmiddlewaretoken' in request.POST:
+                    error_message = (
+                        "Your session has expired. Please try logging in again."
+                    )
+                else:
+                    error_message = "Please correct the errors below."
         else:
-            # Check if this is a CSRF failure
-            if 'csrfmiddlewaretoken' in request.POST:
-                error_message = (
-                    "Your session has expired. Please try logging in again."
-                )
-            else:
-                error_message = "Please correct the errors below."
-    else:
-        form = AuthenticationForm()
+            form = AuthenticationForm()
+
+    except Exception as exc:
+        # Log full traceback to stdout so Heroku logs capture it for debugging
+        print("Exception in user_login:", exc)
+        traceback.print_exc()
+        # Return a short 500 response (temporary debugging aid)
+        return HttpResponse(f"Server error: {str(exc)}", status=500)
 
     # Add Bootstrap classes to form fields
     form.fields['username'].widget.attrs.update({
