@@ -1,6 +1,11 @@
 /* Minimal theme main.css placeholder */
 body{background:#fff;color:#222}
 .hero{padding:40px}
+
+/* Reduce layout shift: ensure images render as block and reserve space for header/hero */
+img{display:block;max-width:100%;height:auto}
+.navbar-brand img{width:160px;height:40px;object-fit:contain}
+.hero-section{min-height:420px}
 /*
 SoftLand - Software and SaaS Landing Page
 Author: UIdeck

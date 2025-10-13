@@ -65,11 +65,13 @@
                                     {% if request.path == '/' %}
                                         <img src="{% static 'theme/assets/img/logo/logo.svg' %}" alt="Logo"
                                              data-logo-default="{% static 'theme/assets/img/logo/logo.svg' %}"
-                                             data-logo-sticky="{% static 'theme/assets/img/logo/logo-2.svg' %}">
+                                             data-logo-sticky="{% static 'theme/assets/img/logo/logo-2.svg' %}"
+                                             width="160" height="40">
                                     {% else %}
                                         <img src="{% static 'theme/assets/img/logo/logo-2.svg' %}" alt="Logo"
                                              data-logo-default="{% static 'theme/assets/img/logo/logo-2.svg' %}"
-                                             data-logo-sticky="{% static 'theme/assets/img/logo/logo-2.svg' %}">
+                                             data-logo-sticky="{% static 'theme/assets/img/logo/logo-2.svg' %}"
+                                             width="160" height="40">
                                     {% endif %}
                                 </a>
                                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
