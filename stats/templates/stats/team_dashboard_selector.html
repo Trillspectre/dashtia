@@ -67,6 +67,16 @@
                     <div class="card-body">
                         <div id="kpi-list" class="row">
                             <!-- KPIs will be loaded here dynamically -->
+                            <!-- Skeleton placeholders to reserve space and reduce CLS -->
+                            <div class="col-md-4 kpi-skeleton">
+                                <div class="skeleton-box"></div>
+                            </div>
+                            <div class="col-md-4 kpi-skeleton">
+                                <div class="skeleton-box"></div>
+                            </div>
+                            <div class="col-md-4 kpi-skeleton">
+                                <div class="skeleton-box"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -88,6 +98,10 @@
                     <div class="card-body">
                         <div id="dashboard-content">
                             <!-- Dashboard content will be loaded here -->
+                            <!-- Reserve a minimum height to avoid shifts while charts load -->
+                            <div class="dashboard-skeleton">
+                                <div class="skeleton-chart"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
