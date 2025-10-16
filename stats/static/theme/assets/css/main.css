@@ -1615,6 +1615,21 @@ p {
   z-index: 1;
 }
 
+/* Ensure the why-use section doesn't run to the very left edge of the viewport.
+   Add a subtle left border and padding; collapse on small screens to avoid tight layout. */
+#why-use {
+  padding-left: 28px; /* visual gutter from left edge */
+  border-left: 3px solid rgba(181, 71, 244, 0.12); /* subtle accent border */
+  margin-left: 0; /* keep normal flow */
+}
+
+@media (max-width: 767px) {
+  #why-use {
+    padding-left: 14px; /* smaller gutter on mobile */
+    border-left-width: 2px;
+  }
+}
+
 .why-use-section .shape {
   position: absolute;
   bottom: 0;
