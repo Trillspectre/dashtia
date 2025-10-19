@@ -41,7 +41,7 @@
             const col = document.createElement('div');
             col.className = 'col-md-6 col-lg-4 mb-3';
             col.innerHTML = `
-                <div class="card h-100 kpi-card" data-kpi-slug="${kpi.slug}">
+                <div class="card h-100 kpi-card" data-kpi-slug="${kpi.slug}" style="cursor: pointer;">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h6 class="card-title mb-0">${kpi.name}</h6>
@@ -55,7 +55,12 @@
                     </div>
                 </div>
             `;
-            // Navigation handled by the anchor link above; no click handler needed
+            const card = col.querySelector('.kpi-card');
+            if (card) card.addEventListener('click', (e) => {
+                // If the user clicked the View link (an <a>), allow normal navigation.
+                if (e.target && e.target.closest && e.target.closest('a')) return;
+                kpiListModule.loadKPIDashboard(kpi);
+            });
             return col;
         },
         async loadKPIDashboard(kpi) {
@@ -66,42 +71,9 @@
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
                 const html = await resp.text();
                 const temp = document.createElement('div'); temp.innerHTML = html;
-                // Prefer a dedicated fragment wrapper if present; fall back to heading
-                // proximity (#dashboard-name), or directly to the chart/data elements
-                // if necessary. Add debug logs to help diagnose why a fragment
-                // might not be found in some environments.
-                let dashboardFragment = temp.querySelector('#kpi-fragment');
-                if (dashboardFragment) {
-                    console.debug('kpi-list: using #kpi-fragment');
-                } else {
-                    const heading = temp.querySelector('#dashboard-name');
-                    if (heading) {
-                        dashboardFragment = heading.closest('.row') || heading.parentElement;
-                        console.debug('kpi-list: using heading proximity', !!dashboardFragment);
-                    }
-                }
-
-                // If still not found, look for chart canvas or data-input and use their
-                // containing element as the fragment.
-                if (!dashboardFragment) {
-                    const chart = temp.querySelector('#myChart');
-                    const input = temp.querySelector('#data-input');
-                    if (chart) {
-                        dashboardFragment = chart.closest('.row') || chart.parentElement || chart;
-                        console.debug('kpi-list: using #myChart proximity');
-                    } else if (input) {
-                        dashboardFragment = input.closest('.row') || input.parentElement || input;
-                        console.debug('kpi-list: using #data-input proximity');
-                    }
-                }
-
-                if (!dashboardFragment) {
-                    // Final fallback to container/main or whole response; log for debugging
-                    dashboardFragment = temp.querySelector('.container') || temp.querySelector('main') || temp;
-                    console.debug('kpi-list: falling back to container/main or full response');
-                }
+                const mainContent = temp.querySelector('.container') || temp.querySelector('main') || temp;
                 const dashboardContent = document.getElementById('dashboard-content');
-                if (dashboardContent) dashboardContent.innerHTML = dashboardFragment.innerHTML;
+                if (dashboardContent) dashboardContent.innerHTML = mainContent.innerHTML;
                 if (typeof window.initializeDashboardScripts === 'function') window.initializeDashboardScripts(kpi.slug);
                 if (typeof window.showDashboard === 'function') window.showDashboard();
             } catch (err) {
