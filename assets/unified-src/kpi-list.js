@@ -87,15 +87,39 @@
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
                 const html = await resp.text();
                 const temp = document.createElement('div'); temp.innerHTML = html;
-                // Prefer a dedicated fragment wrapper if present; fall back to the
-                // dashboard heading proximity, then to the page container.
+                // Prefer a dedicated fragment wrapper if present; fall back to heading
+                // proximity (#dashboard-name), or directly to the chart/data elements
+                // if necessary. Add debug logs to help diagnose why a fragment
+                // might not be found in some environments.
                 let dashboardFragment = temp.querySelector('#kpi-fragment');
-                if (!dashboardFragment) {
+                if (dashboardFragment) {
+                    console.debug('kpi-list: using #kpi-fragment');
+                } else {
                     const heading = temp.querySelector('#dashboard-name');
-                    if (heading) dashboardFragment = heading.closest('.row') || heading.parentElement;
+                    if (heading) {
+                        dashboardFragment = heading.closest('.row') || heading.parentElement;
+                        console.debug('kpi-list: using heading proximity', !!dashboardFragment);
+                    }
                 }
+
+                // If still not found, look for chart canvas or data-input and use their
+                // containing element as the fragment.
                 if (!dashboardFragment) {
+                    const chart = temp.querySelector('#myChart');
+                    const input = temp.querySelector('#data-input');
+                    if (chart) {
+                        dashboardFragment = chart.closest('.row') || chart.parentElement || chart;
+                        console.debug('kpi-list: using #myChart proximity');
+                    } else if (input) {
+                        dashboardFragment = input.closest('.row') || input.parentElement || input;
+                        console.debug('kpi-list: using #data-input proximity');
+                    }
+                }
+
+                if (!dashboardFragment) {
+                    // Final fallback to container/main or whole response; log for debugging
                     dashboardFragment = temp.querySelector('.container') || temp.querySelector('main') || temp;
+                    console.debug('kpi-list: falling back to container/main or full response');
                 }
                 const dashboardContent = document.getElementById('dashboard-content');
                 if (dashboardContent) dashboardContent.innerHTML = dashboardFragment.innerHTML;
