@@ -57,7 +57,14 @@
             `;
             const card = col.querySelector('.kpi-card');
             const anchor = col.querySelector('a');
-            if (anchor) anchor.addEventListener('click', (e) => { try { e.stopPropagation(); } catch(err){} });
+            if (anchor) {
+                anchor.addEventListener('click', (e) => {
+                    try { e.stopPropagation(); } catch(err){}
+                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                    if (e.button && e.button !== 0) return;
+                    try { window.location.href = anchor.href; } catch(err){}
+                });
+            }
             if (card) card.addEventListener('click', (e) => {
                 // If the user clicked the View link (an <a>), allow normal navigation.
                 try {

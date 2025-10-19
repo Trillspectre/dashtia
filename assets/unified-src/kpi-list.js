@@ -78,7 +78,16 @@
             const card = col.querySelector('.kpi-card');
             // Ensure any anchor inside the card won't trigger the card's click handler
             const anchor = col.querySelector('a');
-            if (anchor) anchor.addEventListener('click', (e) => { try { e.stopPropagation(); } catch(err){} });
+            if (anchor) {
+                anchor.addEventListener('click', (e) => {
+                    try { e.stopPropagation(); } catch(err){}
+                    // If modifier keys or non-left click, allow default (so users can open in new tab)
+                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                    if (e.button && e.button !== 0) return;
+                    // Force navigation in case other handlers try to prevent it
+                    try { window.location.href = anchor.href; } catch(err){}
+                });
+            }
             if (card) card.addEventListener('click', (e) => {
                 // If the user clicked the View link (an <a>), allow normal navigation.
                 try {
