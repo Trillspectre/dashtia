@@ -78,7 +78,19 @@
             const card = col.querySelector('.kpi-card');
             if (card) card.addEventListener('click', (e) => {
                 // If the user clicked the View link (an <a>), allow normal navigation.
-                if (e.target && e.target.closest && e.target.closest('a')) return;
+                try {
+                    // Prefer composedPath if available (handles shadow DOM/text nodes)
+                    const path = e.composedPath ? e.composedPath() : null;
+                    if (path && path.some(node => node && node.tagName === 'A')) return;
+                    // Fallback: walk up from target to check for an anchor ancestor
+                    let node = e.target;
+                    while (node && node !== card) {
+                        if (node.tagName === 'A') return;
+                        node = node.parentNode;
+                    }
+                } catch (err) {
+                    // ignore and proceed to load via AJAX
+                }
                 kpiListModule.loadKPIDashboard(kpi);
             });
             return col;
