@@ -207,6 +207,12 @@
                 if (data.success) {
                     try { currentDataItemEl.remove(); } catch (e) { currentDataItemEl.style.display = 'none'; }
                     ui && ui.showToast && ui.showToast('Data point deleted');
+                    // If a chart module exists, request an update so visualizations reflect the deletion immediately
+                    try {
+                        if (window.UnifiedDashboardModules && window.UnifiedDashboardModules.chart && typeof window.UnifiedDashboardModules.chart.updateChart === 'function') {
+                            window.UnifiedDashboardModules.chart.updateChart();
+                        }
+                    } catch (e) { console.warn('chart update after data delete failed', e); }
                 } else {
                     ui && ui.showToast && ui.showToast(data.error || 'Delete failed', 'danger');
                 }

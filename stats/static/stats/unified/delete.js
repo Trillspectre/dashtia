@@ -87,6 +87,11 @@
                         window.location.reload();
                     }
                     ui && ui.showToast && ui.showToast('KPI deleted (soft-delete)');
+                        try {
+                            if (window.UnifiedDashboardModules && window.UnifiedDashboardModules.chart && typeof window.UnifiedDashboardModules.chart.updateChart === 'function') {
+                                window.UnifiedDashboardModules.chart.updateChart();
+                            }
+                        } catch (e) { console.warn('chart update after data delete failed', e); }
                 } else {
                     ui && ui.showToast && ui.showToast(data.error || 'Delete failed', 'danger');
                 }
