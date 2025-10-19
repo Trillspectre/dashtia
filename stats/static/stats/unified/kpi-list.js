@@ -67,9 +67,17 @@
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
                 const html = await resp.text();
                 const temp = document.createElement('div'); temp.innerHTML = html;
-                const mainContent = temp.querySelector('.container') || temp.querySelector('main') || temp;
+                // Prefer extracting the KPI dashboard fragment by looking for `#dashboard-name`.
+                let dashboardFragment = null;
+                const heading = temp.querySelector('#dashboard-name');
+                if (heading) {
+                    dashboardFragment = heading.closest('.row') || heading.parentElement;
+                }
+                if (!dashboardFragment) {
+                    dashboardFragment = temp.querySelector('.container') || temp.querySelector('main') || temp;
+                }
                 const dashboardContent = document.getElementById('dashboard-content');
-                if (dashboardContent) dashboardContent.innerHTML = mainContent.innerHTML;
+                if (dashboardContent) dashboardContent.innerHTML = dashboardFragment.innerHTML;
                 if (typeof window.initializeDashboardScripts === 'function') window.initializeDashboardScripts(kpi.slug);
                 if (typeof window.showDashboard === 'function') window.showDashboard();
             } catch (err) {

@@ -87,9 +87,20 @@
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
                 const html = await resp.text();
                 const temp = document.createElement('div'); temp.innerHTML = html;
-                const mainContent = temp.querySelector('.container') || temp.querySelector('main') || temp;
+                // Prefer extracting the KPI dashboard fragment specifically by looking
+                // for an element that exists on the KPI page (`#dashboard-name`).
+                // Falling back to '.container' or 'main' only if that isn't available.
+                let dashboardFragment = null;
+                const heading = temp.querySelector('#dashboard-name');
+                if (heading) {
+                    // Find the surrounding row that contains the dashboard columns
+                    dashboardFragment = heading.closest('.row') || heading.parentElement;
+                }
+                if (!dashboardFragment) {
+                    dashboardFragment = temp.querySelector('.container') || temp.querySelector('main') || temp;
+                }
                 const dashboardContent = document.getElementById('dashboard-content');
-                if (dashboardContent) dashboardContent.innerHTML = mainContent.innerHTML;
+                if (dashboardContent) dashboardContent.innerHTML = dashboardFragment.innerHTML;
                 if (typeof window.initializeDashboardScripts === 'function') window.initializeDashboardScripts(kpi.slug);
                 if (typeof window.showDashboard === 'function') window.showDashboard();
             } catch (err) {
