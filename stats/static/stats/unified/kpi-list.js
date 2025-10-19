@@ -67,11 +67,12 @@
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
                 const html = await resp.text();
                 const temp = document.createElement('div'); temp.innerHTML = html;
-                // Prefer extracting the KPI dashboard fragment by looking for `#dashboard-name`.
-                let dashboardFragment = null;
-                const heading = temp.querySelector('#dashboard-name');
-                if (heading) {
-                    dashboardFragment = heading.closest('.row') || heading.parentElement;
+                // Prefer a dedicated fragment wrapper if present; fall back to the
+                // dashboard heading proximity, then to the page container.
+                let dashboardFragment = temp.querySelector('#kpi-fragment');
+                if (!dashboardFragment) {
+                    const heading = temp.querySelector('#dashboard-name');
+                    if (heading) dashboardFragment = heading.closest('.row') || heading.parentElement;
                 }
                 if (!dashboardFragment) {
                     dashboardFragment = temp.querySelector('.container') || temp.querySelector('main') || temp;
