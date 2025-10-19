@@ -61,7 +61,7 @@
             const col = document.createElement('div');
             col.className = 'col-md-6 col-lg-4 mb-3';
             col.innerHTML = `
-                <div class="card h-100 kpi-card" data-kpi-slug="${kpi.slug}" style="cursor: pointer;">
+                <div class="card h-100 kpi-card" data-kpi-slug="${kpi.slug}">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h6 class="card-title mb-0">${kpi.name}</h6>
@@ -88,23 +88,7 @@
                     try { window.location.href = anchor.href; } catch(err){}
                 });
             }
-            if (card) card.addEventListener('click', (e) => {
-                // If the user clicked the View link (an <a>), allow normal navigation.
-                try {
-                    // Prefer composedPath if available (handles shadow DOM/text nodes)
-                    const path = e.composedPath ? e.composedPath() : null;
-                    if (path && path.some(node => node && node.tagName === 'A')) return;
-                    // Fallback: walk up from target to check for an anchor ancestor
-                    let node = e.target;
-                    while (node && node !== card) {
-                        if (node.tagName === 'A') return;
-                        node = node.parentNode;
-                    }
-                } catch (err) {
-                    // ignore and proceed to load via AJAX
-                }
-                kpiListModule.loadKPIDashboard(kpi);
-            });
+            // Card click-to-load behavior removed; navigation is handled by the anchor only.
             return col;
         },
         async loadKPIDashboard(kpi) {
