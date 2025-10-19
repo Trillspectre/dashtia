@@ -60,6 +60,7 @@
             if (anchor) {
                 anchor.addEventListener('click', (e) => {
                     try { e.stopPropagation(); } catch(err){}
+                    console.debug('KPI View anchor clicked', { href: anchor.href, button: e.button, meta: e.metaKey || e.ctrlKey || e.shiftKey || e.altKey });
                     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
                     if (e.button && e.button !== 0) return;
                     try { window.location.href = anchor.href; } catch(err){}

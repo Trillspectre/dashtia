@@ -81,6 +81,7 @@
             if (anchor) {
                 anchor.addEventListener('click', (e) => {
                     try { e.stopPropagation(); } catch(err){}
+                    console.debug('KPI View anchor clicked', { href: anchor.href, button: e.button, meta: e.metaKey || e.ctrlKey || e.shiftKey || e.altKey });
                     // If modifier keys or non-left click, allow default (so users can open in new tab)
                     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
                     if (e.button && e.button !== 0) return;
