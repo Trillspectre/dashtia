@@ -41,7 +41,7 @@
             const col = document.createElement('div');
             col.className = 'col-md-6 col-lg-4 mb-3';
             col.innerHTML = `
-                <div class="card h-100 kpi-card" data-kpi-slug="${kpi.slug}" style="cursor: pointer;">
+                <div class="card h-100 kpi-card" data-kpi-slug="${kpi.slug}">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h6 class="card-title mb-0">${kpi.name}</h6>
@@ -50,13 +50,12 @@
                         <p class="text-muted small mb-2"><i class="fas fa-user"></i> Created by: ${kpi.owner}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted"><i class="fas fa-chart-bar"></i> ${kpi.data_count} data points</small>
-                            <button class="btn btn-outline-primary btn-sm"><i class="fas fa-eye"></i> View</button>
+                            <a href="/stats/${kpi.slug}/" class="btn btn-outline-primary btn-sm"><i class="fas fa-eye"></i> View</a>
                         </div>
                     </div>
                 </div>
             `;
-            const card = col.querySelector('.kpi-card');
-            if (card) card.addEventListener('click', () => kpiListModule.loadKPIDashboard(kpi));
+            // Navigation handled by the anchor link above; no click handler needed
             return col;
         },
         async loadKPIDashboard(kpi) {
