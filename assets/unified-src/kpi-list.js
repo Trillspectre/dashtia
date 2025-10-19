@@ -76,6 +76,9 @@
                 </div>
             `;
             const card = col.querySelector('.kpi-card');
+            // Ensure any anchor inside the card won't trigger the card's click handler
+            const anchor = col.querySelector('a');
+            if (anchor) anchor.addEventListener('click', (e) => { try { e.stopPropagation(); } catch(err){} });
             if (card) card.addEventListener('click', (e) => {
                 // If the user clicked the View link (an <a>), allow normal navigation.
                 try {
