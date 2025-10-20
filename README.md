@@ -44,10 +44,10 @@
 
 10. [Conclusion](#conclusion)
 ## Deployed Links + accounts
-assessment-test
-assessment
-https://dashtia-a4f2cf03bc67.herokuapp.com/
-https://github.com/Trillspectre/dashtia
+assessment-test<br>
+assessment<br>
+https://dashtia-a4f2cf03bc67.herokuapp.com/<br>
+https://github.com/Trillspectre/dashtia<br>
 https://github.com/users/Trillspectre/projects/10/views/1
 ## Design & Planning:
 Key design principles include:
@@ -462,6 +462,7 @@ Build Real-Time Live Dashboards with Django Channels: A Step-by-Step Tutorial
  https://www.youtube.com/watch?v=jsxFEONN_yo&t=486s
  <br>startbootstrap.com free themes 
  <br>mermaidchart.com ERD
+ 
  <br>Code Institute and its staff who have helped me learn a skill I have always wanted to and a special thanks to Marko and Mark for helping me achieve that dream
 
  <br> The south yorks/berkshire cohort and the lancashire cohort who have helped me through the course and I have made some friends I hope I will keep for a long time
