@@ -40,7 +40,7 @@
         ,
         initGlobalUi() {
             // Defensive modal wiring and collapse fallback previously in base_theme.html
-            function debugLog(){ if (window.location.search.indexOf('debug_modals=1') === -1) return; try { console.debug.apply(console, arguments); } catch(e){} }
+            // debugLog removed in production
 
             function maybeShowModalById(id){
                 const modalEl = document.getElementById(id);

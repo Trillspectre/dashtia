@@ -60,7 +60,7 @@
             if (anchor) {
                 anchor.addEventListener('click', (e) => {
                     try { e.stopPropagation(); } catch(err){}
-                    console.debug('KPI View anchor clicked', { href: anchor.href, button: e.button, meta: e.metaKey || e.ctrlKey || e.shiftKey || e.altKey });
+                    // navigation intentionally handled; debug logging removed in cleanup
                     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
                     if (e.button && e.button !== 0) return;
                     try { window.location.href = anchor.href; } catch(err){}
@@ -107,7 +107,7 @@
                 btn.replaceWith(a);
                 a.addEventListener('click', (e) => {
                     try { e.stopPropagation(); } catch(err){}
-                    console.debug('KPI View anchor clicked (normalized)', { href: a.href, button: e.button, meta: e.metaKey || e.ctrlKey || e.shiftKey || e.altKey });
+                    // navigation intentionally handled; debug logging removed in cleanup
                     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
                     if (e.button && e.button !== 0) return;
                     try { window.location.href = a.href; } catch(err){}
@@ -136,7 +136,7 @@
                             const href = slug ? ('/stats/' + slug + '/') : (btn.getAttribute('data-href') || btn.getAttribute('data-kpi-href'));
                             if (href) {
                                 try { e.preventDefault(); e.stopPropagation(); } catch(_){ }
-                                console.debug('KPI View button capture -> forcing navigation', { href });
+                                // capture: forcing navigation (cleanup)
                                 try { window.location.href = href; } catch(err){}
                                 return;
                             }
@@ -150,7 +150,7 @@
             if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
             if (typeof e.button !== 'undefined' && e.button !== 0) return;
             try { e.preventDefault(); e.stopPropagation(); } catch(_){ }
-            console.debug('KPI View anchor capture -> forcing navigation', { href: a.href });
+            // capture: forcing navigation (cleanup)
             try { window.location.href = a.href; } catch(err){}
         } catch(err){ console.error('forceKPIAnchorNavigationCapture failed', err); }
     }
