@@ -1,3 +1,4 @@
+# code from youtube video in Readme
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import Statistic, DataItem
