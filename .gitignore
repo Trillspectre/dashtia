@@ -57,3 +57,6 @@ db.sqlite3
 staticfiles/
 media/
 *.log
+# Ignore validation snapshots and validator screenshots generated during W3C runs
+validation_snapshots/
+*validator.png
