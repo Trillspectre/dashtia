@@ -22,7 +22,10 @@
 6. [Bugs](#bugs)
 7. [Deployment](#deployment)
 8. [Credits](#credits)
-
+## Deployed Links
+https://dashtia-a4f2cf03bc67.herokuapp.com/
+https://github.com/Trillspectre/dashtia
+https://github.com/users/Trillspectre/projects/10/views/1
 ## Design & Planning:
 
 ### User Stories
