@@ -19,18 +19,20 @@ class AllowAmiresponsiveFrameMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):
         # If the response already has a CSP frame-ancestors, don't override
-        if 'Content-Security-Policy' in response:
+        if "Content-Security-Policy" in response:
             # Append frame-ancestors if not present (simple approach)
-            csp = response['Content-Security-Policy']
-            if 'frame-ancestors' not in csp:
+            csp = response["Content-Security-Policy"]
+            if "frame-ancestors" not in csp:
                 allowed = "'self' " + " ".join(self.ALLOWED_FRAME_ORIGINS)
-                response['Content-Security-Policy'] = csp + "; frame-ancestors %s" % allowed
+                response["Content-Security-Policy"] = (
+                    csp + "; frame-ancestors %s" % allowed
+                )
         else:
             allowed = "'self' " + " ".join(self.ALLOWED_FRAME_ORIGINS)
-            response['Content-Security-Policy'] = f"frame-ancestors {allowed}"
+            response["Content-Security-Policy"] = f"frame-ancestors {allowed}"
 
         # Remove X-Frame-Options to avoid conflicting directives
-        if 'X-Frame-Options' in response:
-            del response['X-Frame-Options']
+        if "X-Frame-Options" in response:
+            del response["X-Frame-Options"]
 
         return response

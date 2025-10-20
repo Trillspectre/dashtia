@@ -9,23 +9,49 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('stats', '0006_dataitem_timestamp_statistic_custom_unit_and_more'),
+        ("stats", "0006_dataitem_timestamp_statistic_custom_unit_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='statistic',
-            name='is_active',
-            field=models.BooleanField(default=True, help_text='Soft-delete flag. Inactive items are hidden from lists.'),
+            model_name="statistic",
+            name="is_active",
+            field=models.BooleanField(
+                default=True,
+                help_text="Soft-delete flag. Inactive items are hidden from lists.",
+            ),
         ),
         migrations.CreateModel(
-            name='KpiDeletion',
+            name="KpiDeletion",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('deleted_at', models.DateTimeField(auto_now_add=True)),
-                ('reason', models.TextField(blank=True, default='')),
-                ('deleted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
-                ('statistic', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='deletions', to='stats.statistic')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("deleted_at", models.DateTimeField(auto_now_add=True)),
+                ("reason", models.TextField(blank=True, default="")),
+                (
+                    "deleted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "statistic",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="deletions",
+                        to="stats.statistic",
+                    ),
+                ),
             ],
         ),
     ]

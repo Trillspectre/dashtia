@@ -7,39 +7,74 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('stats', '0005_team_remove_statistic_is_public_statistic_visibility_and_more'),
+        (
+            "stats",
+            "0005_team_remove_statistic_is_public_statistic_visibility_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='dataitem',
-            name='timestamp',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="dataitem",
+            name="timestamp",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='statistic',
-            name='custom_unit',
-            field=models.CharField(blank=True, help_text="Custom unit name (e.g 'chats', 'bugs')", max_length=50),
+            model_name="statistic",
+            name="custom_unit",
+            field=models.CharField(
+                blank=True,
+                help_text="Custom unit name (e.g 'chats', 'bugs')",
+                max_length=50,
+            ),
         ),
         migrations.AddField(
-            model_name='statistic',
-            name='max_value',
-            field=models.DecimalField(blank=True, decimal_places=2, help_text='Maximum allowed value', max_digits=10, null=True),
+            model_name="statistic",
+            name="max_value",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=2,
+                help_text="Maximum allowed value",
+                max_digits=10,
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='statistic',
-            name='min_value',
-            field=models.DecimalField(blank=True, decimal_places=2, help_text='Minimum allowed value', max_digits=10, null=True),
+            model_name="statistic",
+            name="min_value",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=2,
+                help_text="Minimum allowed value",
+                max_digits=10,
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='statistic',
-            name='unit_type',
-            field=models.CharField(choices=[('number', 'Number'), ('percentage', 'Percentage (%)'), ('currency', 'Currency (£)'), ('time', 'Time (minutes)'), ('rating', 'Rating (1-10)'), ('count', 'Count/Quantity'), ('score', 'Score/Points'), ('custom', 'Custom Unit')], default='number', help_text='Type of unit for this KPI', max_length=20),
+            model_name="statistic",
+            name="unit_type",
+            field=models.CharField(
+                choices=[
+                    ("number", "Number"),
+                    ("percentage", "Percentage (%)"),
+                    ("currency", "Currency (£)"),
+                    ("time", "Time (minutes)"),
+                    ("rating", "Rating (1-10)"),
+                    ("count", "Count/Quantity"),
+                    ("score", "Score/Points"),
+                    ("custom", "Custom Unit"),
+                ],
+                default="number",
+                help_text="Type of unit for this KPI",
+                max_length=20,
+            ),
         ),
         migrations.AlterField(
-            model_name='dataitem',
-            name='value',
+            model_name="dataitem",
+            name="value",
             field=models.DecimalField(decimal_places=2, max_digits=10),
         ),
     ]

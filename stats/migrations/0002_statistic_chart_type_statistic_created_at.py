@@ -7,19 +7,32 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('stats', '0001_initial'),
+        ("stats", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='statistic',
-            name='chart_type',
-            field=models.CharField(choices=[('pie', 'Pie Chart'), ('bar', 'Bar Chart'), ('doughnut', 'Doughnut Chart'), ('line', 'Line Chart'), ('radar', 'Radar Chart'), ('polarArea', 'Polar Area Chart')], default='pie', max_length=20),
+            model_name="statistic",
+            name="chart_type",
+            field=models.CharField(
+                choices=[
+                    ("pie", "Pie Chart"),
+                    ("bar", "Bar Chart"),
+                    ("doughnut", "Doughnut Chart"),
+                    ("line", "Line Chart"),
+                    ("radar", "Radar Chart"),
+                    ("polarArea", "Polar Area Chart"),
+                ],
+                default="pie",
+                max_length=20,
+            ),
         ),
         migrations.AddField(
-            model_name='statistic',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="statistic",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
     ]

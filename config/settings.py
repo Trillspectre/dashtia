@@ -9,12 +9,13 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+
 from pathlib import Path
 import os
 import dj_database_url
 
 # Only import env.py in development
-if os.path.exists('env.py') and os.environ.get('DJANGO_ENV') != 'production':
+if os.path.exists("env.py") and os.environ.get("DJANGO_ENV") != "production":
     import env
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,124 +29,134 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Temporarily enable DEBUG to see CSRF errors
-DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
+DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
 
 ALLOWED_HOSTS = [
-    '.herokuapp.com',
-    'dashtia-a4f2cf03bc67.herokuapp.com',
-    '127.0.0.1',
-    'localhost',
+    ".herokuapp.com",
+    "dashtia-a4f2cf03bc67.herokuapp.com",
+    "127.0.0.1",
+    "localhost",
 ]
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'cloudinary_storage',
-    'django.contrib.sites',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'cloudinary',
-    'stats',
-    'home',  
-    'channels',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "cloudinary_storage",
+    "django.contrib.sites",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "cloudinary",
+    "stats",
+    "home",
+    "channels",
 ]
 
 SITE_ID = 1
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 
 # Channel Layers Configuration with Redis fallback
 try:
     # Try to use Redis if available (production/with Redis server)
-    REDIS_URL = os.environ.get('REDIS_URL', 'redis://127.0.0.1:6379')
-    
+    REDIS_URL = os.environ.get("REDIS_URL", "redis://127.0.0.1:6379")
+
     CHANNEL_LAYERS = {
-        'default': {
-            'BACKEND': 'channels_redis.core.RedisChannelLayer',
-            'CONFIG': {
-                "hosts": [REDIS_URL] if REDIS_URL.startswith('redis://') else [('127.0.0.1', 6379)],
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": (
+                    [REDIS_URL]
+                    if REDIS_URL.startswith("redis://")
+                    else [("127.0.0.1", 6379)]
+                ),
             },
         }
     }
-    
+
     # Test Redis connection by importing redis and attempting connection
     import redis
+
     r = redis.Redis.from_url(REDIS_URL)
     r.ping()  # This will fail if Redis is not available
     print("✅ Using Redis for Channel Layer")
-    
+
 except Exception as e:
     # Fallback to InMemory for development
-    print(f"⚠️  Redis not available ({e}), falling back to InMemory Channel Layer")
+    print(
+        (
+            f"⚠️  Redis not available ({e}), falling back to InMemory "
+            "Channel Layer"
+        )
+    )
     CHANNEL_LAYERS = {
-        'default': {
-            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer",
         }
     }
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 # CSRF Settings for Heroku
 CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
 ]
 
 # Add Heroku app URL from environment variable
-heroku_app_url = os.environ.get('CSRF_TRUSTED_ORIGINS')
+heroku_app_url = os.environ.get("CSRF_TRUSTED_ORIGINS")
 if heroku_app_url:
     CSRF_TRUSTED_ORIGINS.append(heroku_app_url)
 else:
     # Fallback for local development or if env var not set
-    CSRF_TRUSTED_ORIGINS.append('https://dashtia-a4f2cf03bc67.herokuapp.com')
+    CSRF_TRUSTED_ORIGINS.append("https://dashtia-a4f2cf03bc67.herokuapp.com")
 
 # Additional CSRF settings for debugging
 if DEBUG:
     CSRF_COOKIE_SECURE = False
     CSRF_COOKIE_HTTPONLY = False
     CSRF_USE_SESSIONS = False
-    CSRF_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_SAMESITE = "Lax"
 
 # Dashtia app configured above
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR/'templates'],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
 # WSGI_APPLICATION = 'config.wsgi.application'
-ASGI_APPLICATION = 'config.asgi.application'
+ASGI_APPLICATION = "config.asgi.application"
 
 
 # Database
@@ -153,15 +164,13 @@ ASGI_APPLICATION = 'config.asgi.application'
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL)
-    }
+    DATABASES = {"default": dj_database_url.parse(DATABASE_URL)}
 else:
     # Fallback to SQLite for local development
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
         }
     }
 
@@ -170,16 +179,25 @@ else:
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": (
+            "django.contrib.auth.password_validation.MinimumLengthValidator"
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": (
+            "django.contrib.auth.password_validation.CommonPasswordValidator"
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": (
+            "django.contrib.auth.password_validation.NumericPasswordValidator"
+        ),
     },
 ]
 
@@ -187,11 +205,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_EMAIL_VERIFICATION = "none"
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -202,17 +220,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 # Ensure STATIC_URL begins with a leading slash so generated URLs are absolute
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-# Only add the project-level 'static' folder to STATICFILES_DIRS if it actually
-# exists on disk. On Heroku the build/dyno filesystem may not include a
-# top-level 'static' directory, which used to trigger a noisy warning from
-# collectstatic and caused static collection to skip copying files. Allowing an
-# empty list here lets Django find app-specific static/ directories (e.g.
-# stats/static/) via AppDirectoriesFinder.
-STATICFILES_DIRS = [
-    BASE_DIR / 'static'
-] if (BASE_DIR / 'static').exists() else []
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+# Only add the project-level 'static' folder to STATICFILES_DIRS if it
+# actually exists on disk. On Heroku the build/dyno filesystem may not
+# include a top-level 'static' directory, which used to trigger a noisy
+# warning from collectstatic and caused static collection to skip copying
+# files. Allowing an empty list here lets Django find app-specific
+# static/ directories (e.g. stats/static/) via AppDirectoriesFinder.
+STATICFILES_DIRS = (
+    [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
+)
 
 # Use WhiteNoise's compressed manifest storage in production so Heroku
 # serves stable, cacheable static files. Manifest storage will raise an
@@ -221,42 +239,42 @@ STATICFILES_DIRS = [
 if not DEBUG:
     # Keep this on a separate indented line to avoid lint line-length warnings
     STATICFILES_STORAGE = (
-        'whitenoise.storage.CompressedManifestStaticFilesStorage'
+        "whitenoise.storage.CompressedManifestStaticFilesStorage"
     )
 
 # Media files (user uploads).
 # Use Cloudinary for media storage when available (recommended for Heroku).
 # Local development will still use the filesystem (MEDIA_ROOT).
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Enable Cloudinary storage if the package is installed and we have a
 # CLOUDINARY_URL in the environment (Heroku config vars) or if
 # cloudinary_storage is present in INSTALLED_APPS.
-if 'cloudinary_storage' in INSTALLED_APPS and (
-    os.environ.get('CLOUDINARY_URL') or os.environ.get('CLOUDINARY_API_KEY')
+if "cloudinary_storage" in INSTALLED_APPS and (
+    os.environ.get("CLOUDINARY_URL") or os.environ.get("CLOUDINARY_API_KEY")
 ):
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
     # Optional: allow splitting the CLOUDINARY_* environment variables
     # instead of using a single CLOUDINARY_URL value.
     CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', ''),
-        'API_KEY': os.environ.get('CLOUDINARY_API_KEY', ''),
-        'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
+        "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME", ""),
+        "API_KEY": os.environ.get("CLOUDINARY_API_KEY", ""),
+        "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET", ""),
     }
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Simplified Security Settings for Student Project
 if not DEBUG:
     # Keep essential security for production
-    SESSION_COOKIE_SECURE = True    # Secure cookies over HTTPS
-    CSRF_COOKIE_SECURE = True       # CSRF protection over HTTPS
-    USE_TZ = True                   # Timezone awareness
-    
+    SESSION_COOKIE_SECURE = True  # Secure cookies over HTTPS
+    CSRF_COOKIE_SECURE = True  # CSRF protection over HTTPS
+    USE_TZ = True  # Timezone awareness
+
     # Optional: Basic security headers (can disable if causing issues)
     # SECURE_BROWSER_XSS_FILTER = True
     # SECURE_CONTENT_TYPE_NOSNIFF = True

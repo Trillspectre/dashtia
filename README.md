@@ -183,7 +183,31 @@ Am I Responsive:
 ![amiresponsive](amiresponsive.png)
 
 ### Code Validation
-Validate your code HTML, CSS, JS & Python (all pages/files need to be validated!!!), display screenshots
+#### CSS
+Animate.css Pass ✅
+![Animate.css](<CSS animate validator.png>)
+bootstrap5 Pass ✅
+![bootstrap5.css](<CSS bootstrap5 validator.png>)
+Lineicons.css Pass ✅
+![Lineicons.css](<CSS Lineicons validator.png>)
+main.css Pass ✅
+![main.css](<CSS main validator.png>)
+#### JS
+Unified.bundle.js Pass ✅
+![Unified.bundle.js](<Unified JS Hint.png>)!
+#### Python
+consumers.py Pass ✅
+![consumers.py](<consumers py python linter.png>)
+Stats Models.py Pass ✅
+![Stats Models.py](<stats models py linter.png>)
+Stats.forms.py Pass ✅
+![Stats forms.py](<Stats forms py linter.png>)
+Stats routing.py Pass ✅
+![Stats routing.py](<stats routing py linter.png>)
+Stats url.py Pass ✅
+![Stats url.py](<Stats url py linter.png>)
+stats views.py Pass ✅
+![stats views.py](<stats views py linter.png>)
 ### Manual Testing user stories
 Test all your user stories, you an create table 
 User Story |  Test | Pass

@@ -12,12 +12,19 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-STATIC_UNIFIED = ROOT / 'stats' / 'static' / 'stats' / 'unified'
+STATIC_UNIFIED = ROOT / "stats" / "static" / "stats" / "unified"
 
 MODULE_FILES = [
-    'ui.js', 'page-helpers.js', 'team.js', 'forms.js', 'delete.js',
-    'kpi-list.js', 'chart.js', 'websocket.js'
+    "ui.js",
+    "page-helpers.js",
+    "team.js",
+    "forms.js",
+    "delete.js",
+    "kpi-list.js",
+    "chart.js",
+    "websocket.js",
 ]
+
 
 def main():
     if not STATIC_UNIFIED.exists():
@@ -41,5 +48,5 @@ def main():
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     raise SystemExit(main())

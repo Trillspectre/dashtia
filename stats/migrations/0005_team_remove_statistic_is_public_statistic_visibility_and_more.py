@@ -9,47 +9,113 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('stats', '0004_alter_statistic_owner'),
+        ("stats", "0004_alter_statistic_owner"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Team',
+            name="Team",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('slug', models.SlugField(blank=True, unique=True)),
-                ('description', models.TextField(blank=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('is_private', models.BooleanField(default=False, help_text='Private teams are only visible to members')),
-                ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='created_teams', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                ("slug", models.SlugField(blank=True, unique=True)),
+                ("description", models.TextField(blank=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "is_private",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Private teams are only visible to members",
+                    ),
+                ),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="created_teams",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.RemoveField(
-            model_name='statistic',
-            name='is_public',
+            model_name="statistic",
+            name="is_public",
         ),
         migrations.AddField(
-            model_name='statistic',
-            name='visibility',
-            field=models.CharField(choices=[('private', 'Private (Owner Only)'), ('team', 'Team Members Only'), ('public', 'Public (Everyone)')], default='private', max_length=20),
+            model_name="statistic",
+            name="visibility",
+            field=models.CharField(
+                choices=[
+                    ("private", "Private (Owner Only)"),
+                    ("team", "Team Members Only"),
+                    ("public", "Public (Everyone)"),
+                ],
+                default="private",
+                max_length=20,
+            ),
         ),
         migrations.AddField(
-            model_name='statistic',
-            name='teams',
-            field=models.ManyToManyField(blank=True, help_text="Teams that can view this KPI (when visibility is set to 'team')", related_name='statistics', to='stats.team'),
+            model_name="statistic",
+            name="teams",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Teams that can view this KPI (when visibility is set to 'team')",
+                related_name="statistics",
+                to="stats.team",
+            ),
         ),
         migrations.CreateModel(
-            name='TeamMembership',
+            name="TeamMembership",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role', models.CharField(choices=[('member', 'Member'), ('admin', 'Team Admin')], default='member', max_length=20)),
-                ('joined_at', models.DateTimeField(auto_now_add=True)),
-                ('team', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='memberships', to='stats.team')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='team_memberships', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "role",
+                    models.CharField(
+                        choices=[
+                            ("member", "Member"),
+                            ("admin", "Team Admin"),
+                        ],
+                        default="member",
+                        max_length=20,
+                    ),
+                ),
+                ("joined_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "team",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="memberships",
+                        to="stats.team",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="team_memberships",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('team', 'user')},
+                "unique_together": {("team", "user")},
             },
         ),
     ]

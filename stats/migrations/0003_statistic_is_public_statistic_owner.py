@@ -9,18 +9,28 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('stats', '0002_statistic_chart_type_statistic_created_at'),
+        ("stats", "0002_statistic_chart_type_statistic_created_at"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='statistic',
-            name='is_public',
-            field=models.BooleanField(default=True, help_text='Whether this KPI is visible to all users'),
+            model_name="statistic",
+            name="is_public",
+            field=models.BooleanField(
+                default=True,
+                help_text="Whether this KPI is visible to all users",
+            ),
         ),
         migrations.AddField(
-            model_name='statistic',
-            name='owner',
-            field=models.ForeignKey(blank=True, help_text='User who created this KPI', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='statistics', to=settings.AUTH_USER_MODEL),
+            model_name="statistic",
+            name="owner",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="User who created this KPI",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="statistics",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

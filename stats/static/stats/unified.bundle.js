@@ -1,3 +1,4 @@
+/* jshint esversion: 8, esnext: false */
 (function(){
 /* Bundled unified modules - rebuilt from assets/unified-src */
 
@@ -68,7 +69,14 @@
 
     function showError(message) { showToast(message, 'danger'); }
 
-    function debounce(fn, wait) { let t; return function(...args){ clearTimeout(t); t = setTimeout(()=>fn(...args), wait); } }
+    function debounce(fn, wait) {
+        var t;
+        return function() {
+            var args = Array.prototype.slice.call(arguments);
+            try { clearTimeout(t); } catch (e) {}
+            t = setTimeout(function() { try { fn.apply(null, args); } catch (e) {} }, wait);
+        };
+    }
 
     const ui = { showToast, showError, showLoading, showKPIList, showDashboard, showEmptyState, hideAllContainers, debounce };
 
@@ -292,7 +300,7 @@
 
         confirmBtnEl.addEventListener('click', function () {
             if (!currentKpiId) {
-                ui && ui.showToast && ui.showToast('No KPI selected for deletion', 'danger');
+                if (ui && ui.showToast) { ui.showToast('No KPI selected for deletion', 'danger'); }
                 if (deleteModal) deleteModal.hide();
                 return;
             }
@@ -336,14 +344,14 @@
                         console.error('Error removing deleted KPI element', e);
                         window.location.reload();
                     }
-                    ui && ui.showToast && ui.showToast('KPI deleted (soft-delete)');
+                    if (ui && ui.showToast) { ui.showToast('KPI deleted (soft-delete)'); }
                 } else {
-                    ui && ui.showToast && ui.showToast(data.error || 'Delete failed', 'danger');
+                    if (ui && ui.showToast) { ui.showToast(data.error || 'Delete failed', 'danger'); }
                 }
             }).catch(async err => {
                 console.error('Fetch delete error', err);
                 let msg = 'Delete failed via fetch; falling back to form POST.';
-                ui && ui.showToast && ui.showToast(msg, 'warning');
+                if (ui && ui.showToast) { ui.showToast(msg, 'warning'); }
 
                 try {
                     const form = document.createElement('form');
@@ -358,7 +366,7 @@
                     form.submit();
                 } catch (e) {
                     console.error('Fallback form POST failed', e);
-                    ui && ui.showToast && ui.showToast('Delete fallback failed', 'danger');
+                    if (ui && ui.showToast) { ui.showToast('Delete fallback failed', 'danger'); }
                 }
             }).finally(() => {
                 if (deleteModal) deleteModal.hide();
@@ -407,7 +415,7 @@
         if (!confirmDataBtn) return;
         confirmDataBtn.addEventListener('click', function () {
             if (!currentDataDeleteUrl || !currentDataItemEl) {
-                ui && ui.showToast && ui.showToast('No data point selected', 'danger');
+                if (ui && ui.showToast) { ui.showToast('No data point selected', 'danger'); }
                 if (dataDeleteModal) dataDeleteModal.hide();
                 return;
             }
@@ -442,13 +450,13 @@
                             console.warn('Could not locate data item element to remove');
                         }
                     } catch (e) { console.error('Error removing data item', e); }
-                    ui && ui.showToast && ui.showToast('Data point deleted');
+                    if (ui && ui.showToast) { ui.showToast('Data point deleted'); }
                 } else {
-                    ui && ui.showToast && ui.showToast(data.error || 'Delete failed', 'danger');
+                    if (ui && ui.showToast) { ui.showToast(data.error || 'Delete failed', 'danger'); }
                 }
             }).catch(err => {
                 console.error('Data delete error', err);
-                ui && ui.showToast && ui.showToast('Delete failed; try refreshing', 'warning');
+                if (ui && ui.showToast) { ui.showToast('Delete failed; try refreshing', 'warning'); }
             }).finally(() => {
                 if (dataDeleteModal) dataDeleteModal.hide();
                 currentDataItemEl = null;
@@ -504,7 +512,7 @@
                 }
             } catch (error) {
                 console.error('Error loading KPIs:', error);
-                ui && ui.showError && ui.showError(`Failed to load KPIs: ${error.message}`);
+                if (ui && ui.showError) { ui.showError(`Failed to load KPIs: ${error.message}`); }
             }
         },
         renderKPIList(kpis, selectionType) {
@@ -569,7 +577,7 @@
                 if (typeof window.showDashboard === 'function') window.showDashboard();
             } catch (err) {
                 console.error('Error loading KPI dashboard:', err);
-                ui && ui.showError && ui.showError('Failed to load KPI dashboard. Please try again.');
+                if (ui && ui.showError) { ui.showError('Failed to load KPI dashboard. Please try again.'); }
             }
         }
     };
@@ -703,7 +711,8 @@
                 console.error('Cannot draw chart: Chart.js failed to load');
                 return;
             }
-            const chartCtx = canvasContext || document.getElementById('myChart')?.getContext('2d');
+            const chartEl = document.getElementById('myChart');
+            const chartCtx = canvasContext || (chartEl && chartEl.getContext ? chartEl.getContext('2d') : null);
             if (!chartCtx) return;
             try {
                 const data = await chartModule.fetchChartData(slug);
@@ -820,7 +829,7 @@
                             try {
                                 const {sender, message} = payload;
                                 let item = null;
-                                try { const parsed = JSON.parse(message); if (parsed && typeof parsed === 'object' && (parsed.value !== undefined || parsed.id !== undefined)) item = parsed; } catch (e) {}
+                                try { const parsed = JSON.parse(message); if (parsed && typeof parsed === 'object' && (parsed.value !== undefined || parsed.id !== undefined)) item = parsed; } catch (parseErr) {}
                                 if (!item) {
                                     const num = Number(message);
                                     if (!isNaN(num)) item = { owner: sender, value: num, timestamp: null, can_delete: false };
@@ -831,7 +840,7 @@
                                     const dataBox = document.getElementById('data-box') || document.querySelector('#dashboard-content #data-box');
                                     if (dataBox) dataBox.innerHTML += `<p>${sender}: ${message}</p>`;
                                 }
-                            } catch (e) { console.error('processing legacy payload', e); }
+                            } catch (parseErr) { console.error('processing legacy payload', parseErr); }
                         }
 
                         if (window.UnifiedDashboardModules && window.UnifiedDashboardModules.chart && typeof window.UnifiedDashboardModules.chart.updateChart === 'function') {
@@ -871,7 +880,11 @@
                 btn.addEventListener('click', function (ev) {
                     ev.preventDefault();
                     const input = document.getElementById('data-input');
-                    const user = document.getElementById('user')?.textContent?.trim() || 'anonymous';
+                    var userEl = document.getElementById('user');
+                    var user = 'anonymous';
+                    if (userEl) {
+                        try { var txt = userEl.textContent || userEl.innerText; if (txt) user = txt.trim(); } catch(e){}
+                    }
                     if (!input) return;
                     const val = input.value;
                     if (val === '' || val === null || typeof val === 'undefined') return;
@@ -1040,7 +1053,11 @@
             if (canvas) window.UnifiedDashboardModules.chart.drawChart().catch(()=>{});
         } } catch(e) {}
         try { if (window.UnifiedDashboardModules.websocket && typeof window.UnifiedDashboardModules.websocket.initWebSocket === 'function') {
-            const slug = document.getElementById('dashboard-slug')?.textContent?.trim();
+            var slugEl = document.getElementById('dashboard-slug');
+            var slug = null;
+            if (slugEl) {
+                try { slug = (slugEl.textContent || slugEl.innerText || '').trim(); } catch(e) { slug = null; }
+            }
             if (slug) window.UnifiedDashboardModules.websocket.initWebSocket(slug);
             try { if (typeof window.UnifiedDashboardModules.websocket.attachSendHandler === 'function') window.UnifiedDashboardModules.websocket.attachSendHandler(); } catch(e) {}
         } } catch(e) {}

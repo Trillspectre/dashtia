@@ -9,13 +9,18 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('stats', '0003_statistic_is_public_statistic_owner'),
+        ("stats", "0003_statistic_is_public_statistic_owner"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='statistic',
-            name='owner',
-            field=models.ForeignKey(help_text='User who created this KPI', on_delete=django.db.models.deletion.CASCADE, related_name='statistics', to=settings.AUTH_USER_MODEL),
+            model_name="statistic",
+            name="owner",
+            field=models.ForeignKey(
+                help_text="User who created this KPI",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="statistics",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

@@ -20,9 +20,7 @@ class Command(BaseCommand):
         try:
             path = default_storage.save(name, content)
             self.stdout.write(
-                self.style.SUCCESS(
-                    f"Successfully saved file to: {path}"
-                )
+                self.style.SUCCESS(f"Successfully saved file to: {path}")
             )
 
             # For storages like Cloudinary, path may be a URL or public id.
@@ -30,9 +28,7 @@ class Command(BaseCommand):
                 try:
                     url = default_storage.url(path)
                     self.stdout.write(
-                        self.style.SUCCESS(
-                            f"Accessible at URL: {url}"
-                        )
+                        self.style.SUCCESS(f"Accessible at URL: {url}")
                     )
                 except Exception as exc:  # pragma: no cover - runtime error
                     self.stdout.write(

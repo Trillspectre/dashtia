@@ -1,5 +1,6 @@
-.animated{animation-duration:1s}
 @charset "UTF-8";
+.animated{animation-duration:1s}
+
 
 .animated {
   -webkit-animation-duration: 1s;

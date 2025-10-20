@@ -8,11 +8,11 @@ from django.http import HttpResponse
 
 
 def home(request):
-    return render(request, 'home/index.html')
+    return render(request, "home/index.html")
 
 
 def sales(request):
-    return render(request, 'home/pricing.html')
+    return render(request, "home/pricing.html")
 
 
 @never_cache
@@ -20,34 +20,38 @@ def sales(request):
 def signup(request):
     error_message = None
 
-    if request.method == 'POST':
+    if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('home')
+            return redirect("home")
     else:
         form = UserCreationForm()
 
     # Add Bootstrap classes to form fields
     for field_name, field in form.fields.items():
-        field.widget.attrs.update({'class': 'form-control'})
-        if field_name == 'username':
-            field.widget.attrs.update({'placeholder': 'Choose a username'})
-        elif field_name == 'password1':
-            field.widget.attrs.update({'placeholder': 'Enter your password'})
-        elif field_name == 'password2':
-            field.widget.attrs.update({'placeholder': 'Confirm your password'})
+        field.widget.attrs.update({"class": "form-control"})
+        if field_name == "username":
+            field.widget.attrs.update({"placeholder": "Choose a username"})
+        elif field_name == "password1":
+            field.widget.attrs.update({"placeholder": "Enter your password"})
+        elif field_name == "password2":
+            field.widget.attrs.update({"placeholder": "Confirm your password"})
 
-    return render(request, 'home/signup.html', {
-        'form': form,
-        'error_message': error_message,
-    })
+    return render(
+        request,
+        "home/signup.html",
+        {
+            "form": form,
+            "error_message": error_message,
+        },
+    )
 
 
 def logout(request):
     auth_logout(request)
-    return redirect('home')
+    return redirect("home")
 
 
 @never_cache
@@ -56,28 +60,29 @@ def user_login(request):
     try:
         # If user is already authenticated, redirect to home
         if request.user.is_authenticated:
-            return redirect('home')
+            return redirect("home")
 
         error_message = None
 
-        if request.method == 'POST':
+        if request.method == "POST":
             form = AuthenticationForm(request, data=request.POST)
             if form.is_valid():
-                username = form.cleaned_data.get('username')
-                password = form.cleaned_data.get('password')
+                username = form.cleaned_data.get("username")
+                password = form.cleaned_data.get("password")
                 user = authenticate(username=username, password=password)
                 if user is not None:
                     login(request, user)
-                    return redirect('home')
+                    return redirect("home")
                 else:
                     error_message = (
                         "Invalid username or password. Please try again."
                     )
             else:
                 # Check if this is a CSRF failure
-                if 'csrfmiddlewaretoken' in request.POST:
+                if "csrfmiddlewaretoken" in request.POST:
                     error_message = (
-                        "Your session has expired. Please try logging in again."
+                        "Your session has expired. "
+                        "Please try logging in again."
                     )
                 else:
                     error_message = "Please correct the errors below."
@@ -92,16 +97,24 @@ def user_login(request):
         return HttpResponse(f"Server error: {str(exc)}", status=500)
 
     # Add Bootstrap classes to form fields
-    form.fields['username'].widget.attrs.update({
-        'class': 'form-control',
-        'placeholder': 'Enter your username',
-    })
-    form.fields['password'].widget.attrs.update({
-        'class': 'form-control',
-        'placeholder': 'Enter your password',
-    })
+    form.fields["username"].widget.attrs.update(
+        {
+            "class": "form-control",
+            "placeholder": "Enter your username",
+        }
+    )
+    form.fields["password"].widget.attrs.update(
+        {
+            "class": "form-control",
+            "placeholder": "Enter your password",
+        }
+    )
 
-    return render(request, 'home/login.html', {
-        'form': form,
-        'error_message': error_message,
-    })
+    return render(
+        request,
+        "home/login.html",
+        {
+            "form": form,
+            "error_message": error_message,
+        },
+    )
