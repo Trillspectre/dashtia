@@ -12,8 +12,7 @@
 
 <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
   {% csrf_token %}
-  {# Render fields manually so help_text that contains block markup (lists) is wrapped in a div,
-     avoiding invalid HTML where a <span> with a <ul> appears inside a <p>. #}
+  {# Render fields manually so help_text that contains block markup (lists) is wrapped in a div. #}
   {% for field in form %}
     <div class="mb-3">
       {{ field.label_tag }}
