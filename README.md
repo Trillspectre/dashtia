@@ -32,39 +32,39 @@ https://github.com/users/Trillspectre/projects/10/views/1
 User stories:
 a few examples of user stories the rest can be views at the [project-board](https://github.com/users/Trillspectre/projects/10)
 I want to log out:
-![user-story-3](.github\images\user-story-3.png)
+![user-story-3](.github/images/user-story-3.png)
 I want the interface to clearly reflect my logged-in or logged-out status across all pages:
-![user-story-4](.github\images\user-story-4.png)
+![user-story-4](.github/images/user-story-4.png)
 I want to access a form to log new KPI and performance metrics (e.g., tasks completed, time spent):
-![user-story-6](.github\images\user-story-6.png)
+![user-story-6](.github/images/user-story-6.png)
 I want to view a list of all my past KPI submissions:
-![user-story-7](.github\images\user-story-7.png)
+![user-story-7](.github/images/user-story-7.png)
 I want to edit a specific KPI entry that I previously submitted
-![user-story-8](.github\images\user-story-8.png) 
+![user-story-8](.github/images/user-story-8.png) 
 
 ### Wireframes
-![Wireframes](<.github\images\New Wireframe 1.png>)
+![Wireframes](<.github/images/New Wireframe 1.png>)
 ### Agile Methodology
 User stories:
 a few examples of user stories the rest can be views at the [project-board](https://github.com/users/Trillspectre/projects/10)
 I want to log out:
-![user-story-3](.github\images\user-story-3.png)
+![user-story-3](.github/images/user-story-3.png)
 I want the interface to clearly reflect my logged-in or logged-out status across all pages:
-![user-story-4](.github\images\user-story-4.png)
+![user-story-4](.github/images/user-story-4.png)
 I want to access a form to log new KPI and performance metrics (e.g., tasks completed, time spent):
-![user-story-6](.github\images\user-story-6.png)
+![user-story-6](.github/images/user-story-6.png)
 I want to view a list of all my past KPI submissions:
-![user-story-7](.github\images\user-story-7.png)
+![user-story-7](.github/images/user-story-7.png)
 I want to edit a specific KPI entry that I previously submitted
-![user-story-8](.github\images\user-story-8.png)
+![user-story-8](.github/images/user-story-8.png)
 MoSCoW prioritisation was used alongside three further tags User and Admin where used for Permissions and MVP was attached to all items Originally included in the scope of MVP
-![Project-board](.github\images\project-board.png)
+![Project-board](.github/images/project-board.png)
 ### Typography
 I have used Nunito across the project as it is clean and keeps a cohesive professional style across the site
 ### Colour Scheme
-![Coolers diagram](.github\images\dashtia.png)
+![Coolers diagram](.github/images/dashtia.png)
 ### DataBase Diagram
-![alt text](.github\images\ERD-2025-10-12-143901.png)
+![alt text](.github/images/ERD-2025-10-12-143901.png)
 ```
 ---
 config:
@@ -126,22 +126,22 @@ erDiagram
 ## Features:
 Explain your features on the website,(navigation, pages, links, forms, input fields, CRUD....)
 ### Navigation
-Navigation bar on the signup page navigate to pricing and home:![signup](.github\images\sign-up.png) . When logged in with permissions you can view and navigate to My KPIs,Team KPIs, Teams Admin and logout: ![Logged-in](.github\images\Logged-in.png) 
+Navigation bar on the signup page navigate to pricing and home:![signup](.github/images/sign-up.png) . When logged in with permissions you can view and navigate to My KPIs,Team KPIs, Teams Admin and logout: ![Logged-in](.github/images/Logged-in.png) 
 ### Footer
-[Footer](.github\images\footer.png) has copyright, logo and navigation buttons to socials that are not wired up
+[Footer](.github/images/footer.png) has copyright, logo and navigation buttons to socials that are not wired up
 ### Home-page
 THe homepage shows a brief overview of the features and is intended to be a landing page for new users
-![Home page](.github\images\Logged-out-homepage.png)
+![Home page](.github/images/Logged-out-homepage.png)
 ### CRUD
 A few pages have Crud capabilities 
 The KPI dashboard:
-![Crud-KPI-dashboard.png](.github\images\Crud-KPI-dashboard.png)
+![Crud-KPI-dashboard.png](.github/images/Crud-KPI-dashboard.png)
 Users can create new KPIs, edit and delete existing ones and assign roles <br>
 The team management dashboard:
-![team-management](.github\images\team-management.png)
+![team-management](.github/images/team-management.png)
 users can create teams view and add members and roles to teams no delete function has been implemented yet<br>
 The Kpi view chart and enter data screen:
-![Kpi-data-chart](.github\images\Kpi-data-chart.png)
+![Kpi-data-chart](.github/images/Kpi-data-chart.png)
 ### Authentication-Authorisation 
 Tech |Use 
 --- | :---:
@@ -164,131 +164,131 @@ AI was used to generate database smoke tests to test database actions
 ## Testing 
 ### Google's Lighthouse Performance
 #### Lighthouse home page:
- ![alt text](.github\images\Lighthouse-homepage.png)
- ![alt text](.github\images\Lighthouse-Kpi-dashboard-desktop.png)
- ![alt text](.github\images\Lighthouse-Kpi-dashboard-mobile.png)
- ![alt text](.github\images\Lighthouse-Team-management-Desktop.png)
- ![alt text](.github\images\Lighthouse-Team-management-Mobile.png)
- ![alt text](.github\images\Lighthouse-Team-dashboard-Desktop.png)
- ![alt text](.github\images\Lighthouse-Team-dashboard-Mobile.png)
- ![alt text](.github\images\Lighthouse-stat-dashboard-Desktop.png)
- ![alt text](.github\images\Lighthouse-stat-dashboard-Mobile.png)
+ ![alt text](.github/images/Lighthouse-homepage.png)
+ ![alt text](.github/images/Lighthouse-Kpi-dashboard-desktop.png)
+ ![alt text](.github/images/Lighthouse-Kpi-dashboard-mobile.png)
+ ![alt text](.github/images/Lighthouse-Team-management-Desktop.png)
+ ![alt text](.github/images/Lighthouse-Team-management-Mobile.png)
+ ![alt text](.github/images/Lighthouse-Team-dashboard-Desktop.png)
+ ![alt text](.github/images/Lighthouse-Team-dashboard-Mobile.png)
+ ![alt text](.github/images/Lighthouse-stat-dashboard-Desktop.png)
+ ![alt text](.github/images/Lighthouse-stat-dashboard-Mobile.png)
  
  ### Browser Compatibility
 Compatible with  Edge browser, chrome browser and comet browser
 ### Responsiveness
 Pixel 7:
-![Pixel 7](.github\images\Pixel-7.png)
+![Pixel 7](.github/images/Pixel-7.png)
 iphone 12 pro:
-![Iphone 12 Pro](.github\images\iphone-12-pro.png)
+![Iphone 12 Pro](.github/images/iphone-12-pro.png)
 Samsung-galaxy-s8:
-![Samsung-galaxy-s8](.github\images\Samsung-galaxy-s8.png)
+![Samsung-galaxy-s8](.github/images/Samsung-galaxy-s8.png)
 ipad pro:
-![ipad-pro](.github\images\ipad-pro.png)
+![ipad-pro](.github/images/ipad-pro.png)
 Am I Responsive:
-![amiresponsive](.github\images\amiresponsive.png)
+![amiresponsive](.github/images/amiresponsive.png)
 
 ### Code Validation
 #### HTML
 HTML landing page
-![HTML landing page](<.github\images\HTML landing page validator.png>)
+![HTML landing page](<.github/images/HTML landing page validator.png>)
 HTML Pricing Pass ✅
-![HTML Pricing](<.github\images\HTML Pricing validator.png>)
+![HTML Pricing](<.github/images/HTML Pricing validator.png>)
 HTML login Pass ✅
-![HTML login](<.github\images\HTML login validator.png>)
+![HTML login](<.github/images/HTML login validator.png>)
 HTML signup page Pass ✅
-![<HTML signup page](<.github\images\HTML signup page validator.png>)
+![<HTML signup page](<.github/images/HTML signup page validator.png>)
 HTML KPI 
-![HTML KPI ](<.github\images\HTML KPI validator.png>)
+![HTML KPI ](<.github/images/HTML KPI validator.png>)
 HTML Dynamic stat Pass ✅
-![HTML Dynamic stat](<.github\images\HTML Dynamic stat  validator.png>)
+![HTML Dynamic stat](<.github/images/HTML Dynamic stat  validator.png>)
 HTML Teams Pass ✅
-![HTML Teams](<.github\images\HTML Teams validator.png>)
+![HTML Teams](<.github/images/HTML Teams validator.png>)
 #### CSS
 Animate.css Pass ✅
-![Animate.css](<.github\images\CSS animate validator.png>)
+![Animate.css](<.github/images/CSS animate validator.png>)
 bootstrap5 Pass ✅
-![bootstrap5.css](<.github\images\CSS bootstrap5 validator.png>)
+![bootstrap5.css](<.github/images/CSS bootstrap5 validator.png>)
 Lineicons.css Pass ✅
-![Lineicons.css](<.github\images\CSS Lineicons validator.png>)
+![Lineicons.css](<.github/images/CSS Lineicons validator.png>)
 main.css Pass ✅
-![main.css](<.github\images\CSS main validator.png>)
+![main.css](<.github/images/CSS main validator.png>)
 #### JS
 Unified.bundle.js Pass ✅
-![Unified.bundle.js](<.github\images\Unified JS Hint.png>)!
+![Unified.bundle.js](<.github/images/Unified JS Hint.png>)!
 #### Python
 consumers.py Pass ✅
-![consumers.py](<.github\images\consumers py python linter.png>)
+![consumers.py](<.github/images/consumers py python linter.png>)
 Stats Models.py Pass ✅
-![Stats Models.py](<.github\images\stats models py linter.png>)
+![Stats Models.py](<.github/images/stats models py linter.png>)
 Stats.forms.py Pass ✅
-![Stats forms.py](<.github\images\Stats forms py linter.png>)
+![Stats forms.py](<.github/images/Stats forms py linter.png>)
 Stats routing.py Pass ✅
-![Stats routing.py](<.github\images\stats routing py linter.png>)
+![Stats routing.py](<.github/images/stats routing py linter.png>)
 Stats url.py Pass ✅
-![Stats url.py](<.github\images\Stats url py linter.png>)
+![Stats url.py](<.github/images/Stats url py linter.png>)
 stats views.py Pass ✅
-![stats views.py](<.github\images\stats views py linter.png>)
+![stats views.py](<.github/images/stats views py linter.png>)
 Stats admin.py
-![Stats admin ](<.github\images\Stats admin py linter.png>)
+![Stats admin ](<.github/images/Stats admin py linter.png>)
 home views.py
-![home views](<.github\images\home views py linter.png>)
+![home views](<.github/images/home views py linter.png>)
 home url.py
-![home url](<.github\images\home url py linter.png>)
+![home url](<.github/images/home url py linter.png>)
 config manage.py
-![config manage.py](<.github\images\config manage py linter.png>)
+![config manage.py](<.github/images/config manage py linter.png>)
 config asgi.py
-![config asgi.py](<.github\images\config asgi py linter.png>)
+![config asgi.py](<.github/images/config asgi py linter.png>)
 ### Manual Testing user stories
 Test all your user stories, you an create table 
 User Story |  Test | Pass
 --- | --- | :---:
 I want the interface to clearly reflect my logged-in or logged-out status across all pages | After logging in and navigating to any of the tools pages a logged in and role is present | &check;
-![alt text](.github\images\kpi-dash.png)|
+![alt text](.github/images/kpi-dash.png)|
 User Story |  Test | Pass
 I want to access a form to log new KPI and performance metrics (e.g., tasks completed, time spent) | After navigating to the my Kpi page you can add data as well as dynamically created data and then create a new KPI and view older ones  | &check;
-![alt text](.github\images\kpi-dash.png)|
+![alt text](.github/images/kpi-dash.png)|
 User Story |  Test | Pass
 I want to view a list of all my past KPI submissions | After navigating to the kpi enter data/view chart button you can view and delete previous entries  | &check;
-![Kpi-data-chart](.github\images\Kpi-data-chart.png)|
+![Kpi-data-chart](.github/images/Kpi-data-chart.png)|
 User Story |  Test | Pass
 I want to edit a specific KPI entry that I previously submitted / I want to delete a KPI log entry I created| After navigating to the my kPIs Kpi can be deleted and edited  | &check;
-![Kpi-dashboard-chart](.github\images\kpi-dash.png)|![Edit page](.github\images\kpi-dash-edit.png)|
+![Kpi-dashboard-chart](.github/images/kpi-dash.png)|![Edit page](.github/images/kpi-dash-edit.png)|
 User Story |  Test | Pass
 I want to log out | After clicking logout you are logged out from the platform and returned to the home page the platform nav should not be available | &check;
-![Logged out](.github\images\logged-out-homepage.png)|
+![Logged out](.github/images/Logged-out-homepage.png)|
 User Story |  Test | Pass
 I want to create a new team| After navigating to the teams page you can create a new team it will be displayed and you can add members to the team | &check;
-![Team-kpis](.github\images\team-management.png)|
+![Team-kpis](.github/images/team-management.png)|
 User Story |  Test | Pass
 I want to be prevented from accessing any team creation or modification pages as a standard user| This was not able to be implemented | &cross;
 User Story |  Test | Pass
 I want to view the Team Productivity Dashboard| After navigating to the team KPIs page you can create view KPIS per team| &check;
-![Team-kpis](.github\images\Team-kpis.png)|
+![Team-kpis](.github/images/Team-kpis.png)|
 User Story |  Test | Pass
 I want to sign up and register a new account| After navigating to the Home page you can click the signup button and create and account this page is also able to be navigated to from the free tier on the pricing page| &check;
-!![Sign-up](.github\images\sign-up.png)|
+!![Sign-up](.github/images/sign-up.png)|
 User Story |  Test | Pass
 Real-Time Notifications | After navigating to the enter data/view chart button from the KPI page. When entering data or when other users enter data the chart redraws and the list adds the data | &check;
-![kpi-data-chart](.github\images\kpi-data-chart.png)|
+![kpi-data-chart](.github/images/Kpi-data-chart.png)|
 User Story |  Test | Pass
 I want to log in securely | Navigate to the log in page and enter in your details | &check;
-![login](.github\images\Login.png)|
+![login](.github/images/Login.png)|
 
 ### Manual Testing features
 Test all your features, you can use the same approach 
 | Feature | Action | Status | 
 |:-------:|:--------| :--------|
 | Front page | Users can navigate the front page | &check; |
-![Front page feature](<.github\images\Front page feature.gif>) |
+![Front page feature](<.github/images/Front page feature.gif>) |
 | team kpis page | Users can navigate to the team kpis page and select their team from there they can navigate to there KPIs | &check; |
-![team kpis page](<.github\images\team kpis page feature.gif>) |
+![team kpis page](<.github/images/team kpis page feature.gif>) |
 | pricing kpis page | Users can navigate to the pricing page read more and use the sign up on the free tier to make an account| &check; |
-![pricing page](<.github\images\pricing kpis page feature.gif>) |
+![pricing page](<.github/images/pricing kpis page feature.gif>) |
 | create teams and add members data feature | Users can navigate the teams page. On this page they can create a team set its visibility and add members, They can also add members to existing teams | &check; |
-![create teams and add members data feature](<.github\images\create teams and add members data feature.gif>) |
+![create teams and add members data feature](<.github/images/create teams and add members data feature.gif>) |
 | Front page | Users can navigate the Kpis page. From there they can view Kpis and create and customisekpis from this page they can navigate to the chart of each KPI and enter data the chart dynamically updates | &check; |
-![create kpis and add data](<.github\images\create kpis and add data feature.gif>) |
+![create kpis and add data](<.github/images/create kpis and add data feature.gif>) |
 
 ## Bugs
 These are Bugs that still exist in the site and will be iterated outside the scope of the project.
