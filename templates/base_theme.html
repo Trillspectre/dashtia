@@ -38,7 +38,8 @@
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
         <![endif]-->
 
-        <!-- preloader -->
+        <!-- preloader (omit on stats pages to avoid blocking KPI interactions) -->
+        {% if not request.path|slice:":6" == '/stats' %}
         <div class="preloader">
             <div class="loader">
                 <div class="ytp-spinner">
@@ -51,6 +52,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
 
         <!-- header / navbar -->
         <header class="header">
@@ -369,13 +371,20 @@
     </a>
         <!-- JS includes -->
     <script src="{% static 'theme/assets/js/bootstrap.bundle-5.0.0.alpha-1-min.js' %}"></script>
-    <script src="{% static 'theme/assets/js/count-up.min.js' %}"></script>
-    <script src="{% static 'theme/assets/js/wow.min.js' %}"></script>
-    <script src="{% static 'theme/assets/js/main.js' %}"></script>
-        {% block scripts %}{% endblock %}
-        {% block extra_js %}{% endblock %}
-    <!-- Global UI handlers moved to unified bundle (page-helpers.js) -->
-    <!-- Unified dashboard bundle (contains chart and dashboard modules). Loaded deferred so it doesn't block initial rendering -->
-    <script src="{% static 'stats/unified.bundle.js' %}" defer></script>
+
+    {# Theme-only scripts (animations, hero counters, etc.) — not needed on /stats pages #}
+    {% if not request.path|slice:":6" == '/stats' %}
+        <script src="{% static 'theme/assets/js/count-up.min.js' %}"></script>
+        <script src="{% static 'theme/assets/js/wow.min.js' %}"></script>
+        <script src="{% static 'theme/assets/js/main.js' %}"></script>
+    {% endif %}
+
+    {% block scripts %}{% endblock %}
+    {% block extra_js %}{% endblock %}
+
+    {# Unified dashboard bundle: load only on /stats pages (reduces requests on marketing pages) #}
+    {% if request.path|slice:":6" == '/stats' %}
+        <script src="{% static 'stats/unified.bundle.js' %}" defer></script>
+    {% endif %}
     </body>
 </html>

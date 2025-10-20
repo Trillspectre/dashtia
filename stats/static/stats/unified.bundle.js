@@ -521,7 +521,7 @@
             const col = document.createElement('div');
             col.className = 'col-md-6 col-lg-4 mb-3';
             col.innerHTML = `
-                <div class="card h-100 kpi-card" data-kpi-slug="${kpi.slug}" style="cursor: pointer;">
+                <div class="card h-100 kpi-card" data-kpi-slug="${kpi.slug}">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h6 class="card-title mb-0">${kpi.name}</h6>
@@ -530,13 +530,23 @@
                         <p class="text-muted small mb-2"><i class="fas fa-user"></i> Created by: ${kpi.owner}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted"><i class="fas fa-chart-bar"></i> ${kpi.data_count} data points</small>
-                            <button class="btn btn-outline-primary btn-sm"><i class="fas fa-eye"></i> View</button>
+                            <a href="/stats/${kpi.slug}/" class="btn btn-outline-primary btn-sm"><i class="fas fa-eye"></i> View</a>
                         </div>
                     </div>
                 </div>
             `;
             const card = col.querySelector('.kpi-card');
-            if (card) card.addEventListener('click', () => kpiListModule.loadKPIDashboard(kpi));
+            const anchor = col.querySelector('a');
+            if (anchor) {
+                anchor.addEventListener('click', (e) => {
+                    try { e.stopPropagation(); } catch(err){}
+                    console.debug('KPI View anchor clicked', { href: anchor.href, button: e.button, meta: e.metaKey || e.ctrlKey || e.shiftKey || e.altKey });
+                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                    if (e.button && e.button !== 0) return;
+                    try { window.location.href = anchor.href; } catch(err){}
+                });
+            }
+            // Card click-to-load behavior removed; navigation is handled by the anchor only.
             return col;
         },
         async loadKPIDashboard(kpi) {
@@ -561,6 +571,71 @@
 
     window.UnifiedDashboardModules.kpiList = kpiListModule;
     try { if (document && document.readyState !== 'loading') kpiListModule.initSelector(); else document.addEventListener('DOMContentLoaded', () => kpiListModule.initSelector()); } catch(e){}
+    // Normalize any stray <button>View</button> controls into proper anchor links
+    function normalizeViewButtons() {
+        try {
+            document.querySelectorAll('button.btn.btn-outline-primary.btn-sm').forEach(function(btn){
+                if (!btn.innerText || btn.innerText.indexOf('View') === -1) return;
+                if (!btn.querySelector || !btn.querySelector('i.fas.fa-eye')) return;
+                const card = btn.closest && btn.closest('.kpi-card');
+                const slug = card && card.dataset && card.dataset.kpiSlug;
+                const href = slug ? ('/stats/' + slug + '/') : (btn.getAttribute('data-href') || btn.getAttribute('data-kpi-href'));
+                if (!href) return;
+                const a = document.createElement('a');
+                a.className = btn.className;
+                a.href = href;
+                a.innerHTML = btn.innerHTML;
+                btn.replaceWith(a);
+                a.addEventListener('click', (e) => {
+                    try { e.stopPropagation(); } catch(err){}
+                    console.debug('KPI View anchor clicked (normalized)', { href: a.href, button: e.button, meta: e.metaKey || e.ctrlKey || e.shiftKey || e.altKey });
+                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                    if (e.button && e.button !== 0) return;
+                    try { window.location.href = a.href; } catch(err){}
+                });
+            });
+        } catch (e) { console.error('normalizeViewButtons failed', e); }
+    }
+    try { document.addEventListener('DOMContentLoaded', normalizeViewButtons); } catch(e){}
+    // Capture-phase click handler to force navigation for KPI View anchors
+    function forceKPIAnchorNavigationCapture(e){
+        try{
+            // First, prefer real anchors used for View
+            const a = e.target && e.target.closest && e.target.closest('a.btn.btn-outline-primary.btn-sm');
+            // If no anchor, also accept button-like controls (legacy markup)
+            if (!a) {
+                const btn = e.target && e.target.closest && e.target.closest('button.btn.btn-outline-primary.btn-sm, button');
+                if (btn) {
+                    // sanity: must look like a View control
+                    const text = (btn.innerText || '').trim();
+                    if (text.indexOf('View') !== -1 || btn.querySelector && btn.querySelector('i.fas.fa-eye')) {
+                        const card = btn.closest && btn.closest('.kpi-card');
+                        if (card) {
+                            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                            if (typeof e.button !== 'undefined' && e.button !== 0) return;
+                            const slug = card.dataset && card.dataset.kpiSlug;
+                            const href = slug ? ('/stats/' + slug + '/') : (btn.getAttribute('data-href') || btn.getAttribute('data-kpi-href'));
+                            if (href) {
+                                try { e.preventDefault(); e.stopPropagation(); } catch(_){ }
+                                console.debug('KPI View button capture -> forcing navigation', { href });
+                                try { window.location.href = href; } catch(err){}
+                                return;
+                            }
+                        }
+                    }
+                }
+                return;
+            }
+            const card = a.closest && a.closest('.kpi-card');
+            if (!card) return;
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+            if (typeof e.button !== 'undefined' && e.button !== 0) return;
+            try { e.preventDefault(); e.stopPropagation(); } catch(_){ }
+            console.debug('KPI View anchor capture -> forcing navigation', { href: a.href });
+            try { window.location.href = a.href; } catch(err){}
+        } catch(err){ console.error('forceKPIAnchorNavigationCapture failed', err); }
+    }
+    try { document.addEventListener('click', forceKPIAnchorNavigationCapture, true); } catch(e){}
 })();
 
 // --- chart.js ---

@@ -15,8 +15,17 @@ try {
 } catch(e) { /* ignore */ }
 
 function fadeout() {
-	document.querySelector('.preloader').style.opacity = '0';
-	document.querySelector('.preloader').style.display = 'none';
+	// The preloader markup may be omitted (we now skip rendering it on stats pages).
+	// Guard access so pages without .preloader don't throw a TypeError.
+	try {
+		const pre = document.querySelector('.preloader');
+		if (!pre) return;
+		pre.style.opacity = '0';
+		pre.style.display = 'none';
+	} catch (e) {
+		// Defensive: log in debug mode if needed but otherwise swallow to avoid noisy errors
+		if (window.location && window.location.search && window.location.search.indexOf('debug_modals=1') !== -1) console.debug('fadeout error', e);
+	}
 }
 
 

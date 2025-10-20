@@ -352,6 +352,13 @@ p {
   animation: ytp-right-spin 1333ms cubic-bezier(0.4, 0, 0.2, 1) infinite both;
 }
 
+/* If a manual modal backdrop element is left behind (created by page-helpers),
+   ensure it never blocks pointer events on stats pages unless a modal is actually visible.
+   This prevents it from covering KPI cards and hiding anchor href previews in the status bar. */
+.stats-page .manual-modal-backdrop { pointer-events: none; opacity: 0; }
+.stats-page .modal.show + .manual-modal-backdrop,
+.stats-page .manual-modal-backdrop.modal-visible { pointer-events: auto; opacity: 1; }
+
 /* Preloader Animations */
 
 @keyframes ytp-spinner-linspin {
