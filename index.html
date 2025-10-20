@@ -1,0 +1,376 @@
+
+<!doctype html>
+<html class="no-js" lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Dashtia - KPI tracker</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" type="image/x-icon" href="/static/theme/assets/img/favicon/favicon.ico">
+
+        <!-- ========================= CSS here ========================= -->
+    <!-- Preconnect to Google Fonts and preload main CSS to reduce render-blocking -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Load Google Font with font-display=swap to avoid FOIT -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/theme/assets/css/bootstrap-5.0.0-alpha-1.min.css">
+    <link rel="stylesheet" href="/static/theme/assets/css/LineIcons.2.0.css">
+    <link rel="stylesheet" href="/static/theme/assets/css/animate.css">
+    <!-- Preload the main stylesheet and then apply it to avoid render-blocking -->
+    <link rel="preload" href="/static/theme/assets/css/main.css" as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="/static/theme/assets/css/main.css"></noscript>
+        
+        <style>
+            /* Theme-specific overrides (hero background)
+               Target the theme's existing 'img-bg' class so we don't need inline raw paths
+            */
+            .img-bg, .hero-bg { background-image: url("/static/theme/assets/img/hero/hero-bg.svg"); }
+            .img-bg { background-size: cover; background-position: center center; }
+        </style>
+        <script>/* Flip no-js -> js early for CSS targeting */ try { document.documentElement.classList.replace('no-js','js'); } catch(e){} </script>
+    </head>
+    <body>
+        <!--[if lte IE 9]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+        <![endif]-->
+
+        <!-- preloader (omit on stats pages to avoid blocking KPI interactions) -->
+        
+        <div class="preloader">
+            <div class="loader">
+                <div class="ytp-spinner">
+                    <div class="ytp-spinner-container">
+                        <div class="ytp-spinner-rotator">
+                            <div class="ytp-spinner-left"><div class="ytp-spinner-circle"></div></div>
+                            <div class="ytp-spinner-right"><div class="ytp-spinner-circle"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+        <!-- header / navbar -->
+        <header class="header">
+            <div class="navbar-area">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <nav class="navbar navbar-expand-lg">
+                                <a class="navbar-brand" href="/">
+                                    <!-- Use logo-2.svg on all non-home pages by default. On the home page
+                                         show the original logo.svg which will switch to logo-2.svg when sticky. -->
+                                    
+                                        <img src="/static/theme/assets/img/logo/logo.svg" alt="Logo"
+                                             data-logo-default="/static/theme/assets/img/logo/logo.svg"
+                                             data-logo-sticky="/static/theme/assets/img/logo/logo-2.svg"
+                                             width="160" height="40">
+                                    
+                                </a>
+                                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                    <span class="toggler-icon"></span>
+                                    <span class="toggler-icon"></span>
+                                    <span class="toggler-icon"></span>
+                                </button>
+
+                                <div class="collapse navbar-collapse sub-menu-bar" id="navbarSupportedContent">
+                                    <ul id="nav" class="navbar-nav ml-auto">
+                                        <li class="nav-item"><a class="page-scroll" href="#home">Home</a></li>
+                                        <li class="nav-item"><a class="nav-link" href="/pricing/">Pricing</a></li>
+                                        
+                                            <li class="nav-item"><a class="nav-link" href="/login/">Login</a></li>
+                                            <li class="nav-item"><a class="nav-link" href="/signup/">Signup</a></li>
+                                        
+                                    </ul>
+                                </div>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- main content area to be overridden -->
+        <main>
+            
+            
+                <!-- ========================= slider-section start ========================= -->
+    <section id="home" class="hero-section img-bg">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-xl-7 col-lg-6">
+                    <div class="hero-content-wrapper">
+                        <h1 class="wow fadeInDown" data-wow-delay=".4s" data-wow-duration="1.3s">Dashtia
+                            </h1>
+                        <p class="wow fadeInLeft" data-wow-delay=".6s" data-wow-duration="1.3s">Track and visualize your Kpis with interactive charts and real-time updates.</p>
+                        <a href="#features" class="theme-btn wow fadeInUp" data-wow-delay=".8s"
+                            data-wow-duration="1.3s">Explore Features</a>
+                    </div>
+                </div>
+                <div class="col-xl-5 col-lg-6">
+                    <div class="hero-img">
+                        <picture>
+                            <!-- WebP sources (create these files in static when ready) -->
+                            <source type="image/webp" srcset="/static/theme/assets/img/hero/hero-img.webp 1x, /static/theme/assets/img/hero/hero-img%402x.webp 2x">
+                            <!-- Fallback to PNG/JPG -->
+                            <img class="wow fadeInRight" data-wow-delay=".4s" data-wow-duration="1.3s"
+                                src="/static/theme/assets/img/hero/hero-img.png" alt="" width="640" height="480">
+                        </picture>
+                        <img src="/static/theme/assets/img/hero/hero-shape.svg" alt="" class="shape" width="120" height="120">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ========================= slider-section end ========================= -->
+
+    <!--========================= service-section start========================= -->
+    <section id="features" class="service-section gray-bg pt-150 pb-70">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-5 col-lg-6 col-md-8 mx-auto">
+                    <div class="section-title text-center mb-55">
+                        <span class="wow fadeInDown" data-wow-delay=".2s">Our Core</span>
+                        <h2 class="mb-15 wow fadeInUp" data-wow-delay=".4s">Features</h2>
+                        <p class="wow fadeInUp" data-wow-delay=".6s">Keep track of personal and team KPIs</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xl-3 col-lg-3 col-md-6">
+                    <div class="single-service text-center mb-30 wow fadeInUp" data-wow-delay=".2s"
+                        data-wow-duration="1.3s">
+                        <div class="service-icon icon-gradient gradient-1 mb-30">
+                            <i class="lni lni-money-protection"></i>
+                        </div>
+                        <h4 class="mb-15">Simple Pricing</h4>
+                        <p>Pricing packages tailored to your needs. At any level. Whether you are a personal user, SME, or a large Enterprise. Dashtia has a package for you</p>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-6">
+                    <div class="single-service text-center mb-30 wow fadeInUp" data-wow-delay=".4s"
+                        data-wow-duration="1.3s">
+                        <div class="service-icon icon-gradient gradient-2 mb-30">
+                            <i class="lni lni-ux"></i>
+                        </div>
+                        <h4 class="mb-15">Track Kpis</h4>
+                        <p>Create and manage custom Kpis for anything you want to measure. Visualize your data with beautiful, interactive charts and graphs</p>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-6">
+                    <div class="single-service text-center mb-30 wow fadeInUp" data-wow-delay=".6s"
+                        data-wow-duration="1.3s">
+                        <div class="service-icon icon-gradient gradient-3 mb-30">
+                            <i class="lni lni-users"></i>
+                        </div>
+                        <h4 class="mb-15">Team Management</h4>
+                        <p>Comprehensive team management options. Allowing for multi-roles with visibility management.From tracking your personal goals to shouting your teams achievements from the rooftops. We have you covered</p>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-lg-3 col-md-6">
+                    <div class="single-service text-center mb-30 wow fadeInUp" data-wow-delay=".8s"
+                        data-wow-duration="1.3s">
+                        <div class="service-icon icon-gradient  gradient-4 mb-30">
+                            <i class="lni lni-reload"></i>
+                        </div>
+                        <h4 class="mb-15">Real-time Updates</h4>
+                        <p>See your data update in real-time as you add new entries.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--========================= service-section end========================= -->
+
+    <section id="process"></section>
+
+   <!-- ========================= why-use-section start ========================= -->
+    <section id="why-use" class="why-use-section pt-150">
+            <img src="/static/theme/assets/img/why-use/why-use-shape.png" alt="" class="shape why-use-shape" loading="lazy" width="200" height="200">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-6 col-lg-6">
+                    <div class="why-use-img wow fadeInLeft" data-wow-delay=".5s" data-wow-duration="1.3s">
+                        <picture>
+                            <source type="image/webp" srcset="/static/theme/assets/img/why-use/why-use-img.webp 1x, /static/theme/assets/img/why-use/why-use-img%402x.webp 2x">
+                            <img src="/static/theme/assets/img/why-use/why-use-img.jpg" alt="" loading="lazy" width="540" height="360">
+                        </picture>
+                    </div>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-12 faq-column">
+                    <div class="section-title mb-30">
+                        <span class="wow fadeInDown" data-wow-delay=".2s">Our Offering</span>
+                        <h2 class="mb-15 wow fadeInUp" data-wow-delay=".4s">Simplest KPI tracking Solution</h2>
+                        <p class="mb-50 wow fadeInUp" data-wow-delay=".6s">Industry leading features to Simplify tracking your employees performance </p>
+                    </div>
+                    <div class="why-use-faq">
+                        <div class="accordion" id="accordionExample">
+                            <div class="faq-item mb-15 wow fadeInUp" data-wow-delay=".2s">
+                                <div class="faq-header" id="faq-heading-1">
+                                    <button class="faq-btn collapsed" type="button" data-toggle="collapse"
+                                        data-target="#faq-1" aria-expanded="true" aria-controls="faq-1">
+                                        <i class="lni lni-bullhorn gradient-1"></i> <span>Individual goals</span>
+                                    </button>
+                                </div>
+
+                                <div id="faq-1" class="collapse" aria-labelledby="faq-heading-1"
+                                    data-parent="#accordionExample">
+                                    <div class="faq-body">
+                                        <p>Individual users can log their activities to achieve their goals. 
+                                            People are in control of their own performance stats allowing visibility across all levels So everyone knows what they are all working toward.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="faq-item mb-15 wow fadeInUp" data-wow-delay=".4s">
+                                <div class="faq-header" id="faq-heading-2">
+                                    <button class="faq-btn collapsed" type="button" data-toggle="collapse"
+                                        data-target="#faq-2" aria-expanded="true" aria-controls="faq-2">
+                                        <i class="lni lni-stats-up gradient-2"></i> <span>Detailed Analytics</span>
+                                    </button>
+                                </div>
+
+                                <div id="faq-2" class="collapse" aria-labelledby="faq-heading-2"
+                                    data-parent="#accordionExample">
+                                    <div class="faq-body">
+                                        <p>Choose from our range of Industry defined KPIs. If the one you want isn't there, then simply create it! Then visualise it with our broad range of data visualisations</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="faq-item wow fadeInUp" data-wow-delay=".6s">
+                                <div class="faq-header" id="faq-heading-3">
+                                    <button class="faq-btn collapsed" type="button" data-toggle="collapse"
+                                        data-target="#faq-3" aria-expanded="true" aria-controls="faq-3">
+                                        <i class="lni lni-consulting gradient-3"></i> <span>Set targets</span>
+                                    </button>
+                                </div>
+
+                                <div id="faq-3" class="collapse" aria-labelledby="faq-heading-3"
+                                    data-parent="#accordionExample">
+                                    <div class="faq-body">
+                                        <p>Nothing like a little friendly competition. With our team KPIs updating in realtime. Everyone knows what everyone else is contributing and more importantly, how to knock them of the top spot!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- ========================= why-use-section end ========================= -->
+
+
+    <!-- ========================= counterup-section start ========================= -->
+    <section class="counterup-section pt-50 pb-50">
+        <div class="container">
+            <img src="/static/theme/assets/img/shape/repeat-shape.svg" alt="" class="shape counter-shape-1" loading="lazy" width="80" height="80">
+            <img src="/static/theme/assets/img/shape/repeat-shape.svg" alt="" class="shape counter-shape-2" loading="lazy" width="80" height="80">
+            <div class="counter-wrapper gradient-1 pt-50">
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <div class="single-counter text-center mb-50">
+                            <i class="lni lni-heart icon-gradient gradient-2 mb-30"></i>
+                            <h3 class="text-white">
+                                <span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap;" aria-hidden="false">Happy Users</span>
+                                <span id="secondo1" class="countup" data-cup-end="125" aria-hidden="true"></span>
+                            </h3>
+                            <p class="mb-0">Happy Users</p>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <div class="single-counter text-center mb-50">
+                            <i class="lni lni-star icon-gradient gradient-3 mb-30"></i>
+                            <h3 class="text-white">
+                                <span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap;" aria-hidden="false">Great Reviews</span>
+                                <span id="secondo2" class="countup" data-cup-end="45" aria-hidden="true"></span>
+                            </h3>
+                            <p class="mb-0">Great Reviews</p>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-4">
+                        <div class="single-counter text-center mb-50">
+                            <i class="lni lni-download icon-gradient gradient-4 mb-30"></i>
+                            <h3 class="text-white">
+                                <span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap;" aria-hidden="false">Downloads</span>
+                                <span id="secondo3" class="countup" data-cup-end="305" aria-hidden="true"></span>
+                            </h3>
+                            <p class="mb-0">Downloads</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+            
+            
+        </main>
+
+<!-- ========================= footer start ========================= -->
+        <footer class="footer pt-150 gray-bg">
+    <img src="/static/theme/assets/img/shape/footer-bg.svg" alt="" class="footer-bg">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="footer-links text-center">
+                        <a href="/" class="logo"><img src="/static/theme/assets/img/logo/logo-2.svg" alt="" loading="lazy" width="48" height="48"> </a>
+                        <div class="footer-social-links">
+                            <ul>
+                                <li>
+                                    <a href="javascript:void(0)">
+                                        <i class="lni lni-facebook-filled"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0)">
+                                        <i class="lni lni-twitter-filled"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0)">
+                                        <i class="lni lni-linkedin-original"></i>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0)">
+                                        <i class="lni lni-instagram-original"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright-area text-center">
+                <p class="mb-0">© 2025 Dashtia</p>
+            </div>
+        </div>
+    </footer> 
+<!-- ========================= footer end ========================= -->
+        
+    <!-- ========================= scroll-top ========================= -->
+    <a href="#" class="scroll-top">
+        <i class="lni lni-chevron-up"></i>
+    </a>
+        <!-- JS includes -->
+    <script src="/static/theme/assets/js/bootstrap.bundle-5.0.0.alpha-1-min.js"></script>
+
+    
+    
+        <script src="/static/theme/assets/js/count-up.min.js"></script>
+        <script src="/static/theme/assets/js/wow.min.js"></script>
+        <script src="/static/theme/assets/js/main.js"></script>
+        <!-- Small marketing initializers (show-more etc.) -->
+        <script src="/static/theme/assets/js/marketing-init.js"></script>
+    
+
+    
+    
+
+    
+    
+    </body>
+</html>
