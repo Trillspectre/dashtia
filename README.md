@@ -1,27 +1,48 @@
 # dashtia
-## Table Of Contents:
-1. [Design & Planning](#design-&-planning)
-    * [User Stories](#user-stories)
-    * [Wireframes](#wireframes)
-    * [Agile Methodology](#agile-methodology)
-    * [Typography](#typography)
-    * [Colour Scheme](#colour-scheme)
-    * [Database Diagram](#database-diagram)
-    
-2. [Features](#features)
-    * [Navigation](#Navigation)
-    * [Footer](#Footer)
-    * [Home page](#Home-page)
-    * [add your pages](#)
-    * [CRUD](#CRUD)
-    * [Authentication & Authorisation](#Authentication-Authorisation )
+## Table Of Contents
 
-3. [Technologies Used](#technologies-used)
-4. [Libraries](#libraries-used)
-5. [Testing](#testing)
-6. [Bugs](#bugs)
-7. [Deployment](#deployment)
-8. [Credits](#credits)
+1. [Deployed Links + accounts](#deployed-links-accounts)
+
+2. [Design & Planning](#design-planning)
+  - [User Stories](#user-stories)
+  - [Wireframes](#wireframes)
+  - [Agile Methodology](#agile-methodology)
+  - [Typography](#typography)
+  - [Colour Scheme](#colour-scheme)
+  - [Sitemap](#sitemap)
+  - [Database Diagram (ERD)](#database-diagram-erd)
+
+3. [Features](#features)
+  - [Navigation](#navigation)
+  - [Footer](#footer)
+  - [Home page](#home-page)
+  - [Add your pages](#add-your-pages)
+  - [CRUD](#crud)
+  - [Authentication & Authorisation](#authentication-authorisation)
+
+4. [Technologies Used](#technologies-used)
+
+5. [AI use](#ai-use)
+
+6. [Testing](#testing)
+  - [Google's Lighthouse Performance](#googles-lighthouse-performance)
+  - [Browser Compatibility](#browser-compatibility)
+  - [Responsiveness](#responsiveness)
+  - [Code Validation](#code-validation)
+    * [HTML](#html)
+    * [CSS](#css)
+    * [JS](#js)
+    * [Python](#python)
+  - [Manual Testing - user stories](#manual-testing-user-stories)
+  - [Manual Testing - features](#manual-testing-features)
+
+7. [Bugs](#bugs)
+
+8. [Deployment](#deployment)
+
+9. [Credits](#credits)
+
+10. [Conclusion](#conclusion)
 ## Deployed Links + accounts
 assessment-test
 assessment
@@ -29,7 +50,13 @@ https://dashtia-a4f2cf03bc67.herokuapp.com/
 https://github.com/Trillspectre/dashtia
 https://github.com/users/Trillspectre/projects/10/views/1
 ## Design & Planning:
+Key design principles include:
 
+- User-Centric Design: The platform is crafted to provide a seamless user experience, with intuitive navigation, clear categorization of products, and a streamlined checkout process.
+- Responsive Design: Coffee Hub is fully responsive, delivering a consistent and polished experience across all devices, whether desktop, tablet, or mobile.
+- Visual Elegance: Rich gradients, subtle lighting effects, and high-quality imagery highlight the premium nature of the products.
+- Accessibility: The design adheres to accessibility standards, ensuring all users can navigate and interact with the platform effortlessly.
+- Security: Robust security measures, including secure authentication and encrypted transactions, are integrated to protect user data and payment information.
 ### User Stories
 User stories:
 a few examples of user stories the rest can be views at the [project-board](https://github.com/users/Trillspectre/projects/10)
@@ -65,6 +92,74 @@ MoSCoW prioritisation was used alongside three further tags User and Admin where
 I have used Nunito across the project as it is clean and keeps a cohesive professional style across the site
 ### Colour Scheme
 ![Coolers diagram](.github/images/dashtia.png)
+### Sitemap
+```mermaid
+flowchart TD
+  %% Pages
+  Home["Home\n(/)"]
+  Pricing["Pricing\n(/pricing)"]
+  Signup["Signup\n(/accounts/signup)"]
+  Login["Login\n(/accounts/login)"]
+  Dashboard["Dashboard\n(/kpis/)"]
+  KPIList["My KPIs\n(/kpis/mine)"]
+  KPIView["KPI View / Enter Data\n(/kpis/<slug>/)"]
+  TeamList["Teams\n(/teams/)"]
+  TeamAdmin["Team Admin\n(/teams/admin/)"]
+  TeamKPIs["Team KPIs\n(/teams/<slug>/kpis)"]
+  Account["Account\n(/account/)"]
+  Admin["Site Admin\n(/admin/)"]
+  Docs["Docs / README\n(/README.md)"]
+
+  %% Navigation
+  Home --> Pricing
+  Home --> Signup
+  Home --> Login
+  Home --> Dashboard
+  Home --> Docs
+
+  Pricing --> Signup
+
+  Signup --> Account
+  Login --> Account
+
+  Dashboard --> KPIList
+  KPIList --> KPIView
+  KPIView --> Dashboard
+
+  Dashboard --> TeamList
+  TeamList --> TeamKPIs
+  TeamKPIs --> TeamAdmin
+
+  Account --> Dashboard
+  Account --> TeamList
+
+  Admin --> Dashboard
+  Admin --> TeamAdmin
+
+  %% notes
+  subgraph Public
+    Home
+    Pricing
+    Signup
+    Login
+    Docs
+  end
+
+  subgraph Authenticated
+    Dashboard
+    KPIList
+    KPIView
+    TeamList
+    TeamKPIs
+    Account
+  end
+
+  subgraph AdminArea
+    Admin
+    TeamAdmin
+  end
+```
+
 ### DataBase Diagram
 ![alt text](.github/images/ERD-2025-10-12-143901.png)
 ```
@@ -151,6 +246,28 @@ allauth | Built in django authentication
 allauth.account | Built in django authentication for account roles |
 allauth.socialaccount | Built in django authentication for SSO integration not able to be implemented in time| 
 ## Technologies Used
+Technology utilised:
+- Python
+- Django
+- Sql
+- HTML
+- CSS
+- JavaScript
+
+Frameworks, libraries and tools:
+- Django: The main web framework used for building the application.
+- PostgreSQL: The relational database used to store user and portfolio data.
+- Redis: A relational database I was investigating to use in deployment.
+- Bootstrap: For responsive design and styling.
+- AllAuth: For user authentication
+- Heroku: For application deployment.
+- Git: version control.
+- Cloudinary: Dynamic assets hosting (Not implemented but It was going to be used to to make account pictures or customisation for branding)
+- Favicon.io: For favicon creation
+- xml-sitemaps.com: Sitemap template creation
+- Balsamiq: Wireframes creation
+
+Highlights
 Tech |Use 
 --- | :---:
 Channels | handle dynamically updating the charts
@@ -345,7 +462,11 @@ Build Real-Time Live Dashboards with Django Channels: A Step-by-Step Tutorial
  https://www.youtube.com/watch?v=jsxFEONN_yo&t=486s
  <br>startbootstrap.com free themes 
  <br>mermaidchart.com ERD
- Code Institute and its staff who have helped me le
+ <br>Code Institute and its staff who have helped me learn a skill I have always wanted to and a special thanks to Marko and Mark for helping me achieve that dream
+
+ <br> The south yorks/berkshire cohort and the lancashire cohort who have helped me through the course and I have made some friends I hope I will keep for a long time
+
+ <br>In memory of my mother who wanted to see me finish the course and held out till the submission date. 
 
 
  ## Conclusion
