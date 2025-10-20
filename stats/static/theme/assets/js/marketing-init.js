@@ -1,3 +1,7 @@
+// Bootstrap v5.0.0-alpha1 (https://getbootstrap.com/)
+//    Copyright 2011-2020 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
+//    Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+
 (function(){
     // Centralized small initializers for marketing pages (pricing, about, sales)
     function initShowMoreButtons(){
