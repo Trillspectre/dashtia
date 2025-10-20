@@ -56,9 +56,11 @@
                 toastEl.setAttribute('aria-atomic', 'true');
                 toastEl.innerHTML = `<div class="d-flex"><div class="toast-body">${message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
                 toastContainer.appendChild(toastEl);
-                const bsToast = new bootstrap.Toast(toastEl, { delay: 4000 });
-                bsToast.show();
-                return;
+                try {
+                    if (window.bootstrap && typeof window.bootstrap.Toast === 'function') {
+                        try { const bsToast = new window.bootstrap.Toast(toastEl, { delay: 4000 }); bsToast.show(); return; } catch(e) { /* fallback below */ }
+                    }
+                } catch (e) { /* fallthrough to alert */ }
             }
         } catch (e) { /* fall through */ }
         alert(message);
@@ -181,8 +183,12 @@
     }
 
     function attachCustomUnitHandlers(){
-        try { if (typeof showCustomUnit === 'function') { showCustomUnit(); } } catch (e) {}
-        try { if (typeof showCustomUnitEdit === 'function') { showCustomUnitEdit(); } } catch (e) {}
+            if (typeof window.showCustomUnit === 'function') {
+                try { window.showCustomUnit(); } catch(e) { /* ignore */ }
+            }
+            if (typeof window.showCustomUnitEdit === 'function') {
+                try { window.showCustomUnitEdit(); } catch(e) { /* ignore */ }
+            }
     }
 
     function initFormToggles(){
@@ -253,8 +259,8 @@
         let deleteModal = null;
         try {
             const modalEl = document.getElementById('deleteConfirmModal');
-            if (modalEl && window.bootstrap && typeof bootstrap.Modal === 'function') {
-                deleteModal = new bootstrap.Modal(modalEl);
+            if (modalEl && window.bootstrap && typeof window.bootstrap.Modal === 'function') {
+                try { deleteModal = new window.bootstrap.Modal(modalEl); } catch(e) { deleteModal = null; }
             } else {
                 deleteModal = null;
             }
@@ -371,8 +377,8 @@
         let dataDeleteModal = null;
         try {
             const dataModalEl = document.getElementById('deleteDataConfirmModal');
-            if (dataModalEl && window.bootstrap && typeof bootstrap.Modal === 'function') {
-                dataDeleteModal = new bootstrap.Modal(dataModalEl);
+            if (dataModalEl && window.bootstrap && typeof window.bootstrap.Modal === 'function') {
+                try { dataDeleteModal = new window.bootstrap.Modal(dataModalEl); } catch(e) { dataDeleteModal = null; }
             } else {
                 dataDeleteModal = null;
             }
@@ -535,7 +541,6 @@
                     </div>
                 </div>
             `;
-            const card = col.querySelector('.kpi-card');
             const anchor = col.querySelector('a');
             if (anchor) {
                 anchor.addEventListener('click', (e) => {
@@ -577,9 +582,8 @@
             document.querySelectorAll('button.btn.btn-outline-primary.btn-sm').forEach(function(btn){
                 if (!btn.innerText || btn.innerText.indexOf('View') === -1) return;
                 if (!btn.querySelector || !btn.querySelector('i.fas.fa-eye')) return;
-                const card = btn.closest && btn.closest('.kpi-card');
-                const slug = card && card.dataset && card.dataset.kpiSlug;
-                const href = slug ? ('/stats/' + slug + '/') : (btn.getAttribute('data-href') || btn.getAttribute('data-kpi-href'));
+                const cardEl = btn.closest && btn.closest('.kpi-card');
+                const href = (cardEl && cardEl.dataset && cardEl.dataset.kpiSlug) ? ('/stats/' + cardEl.dataset.kpiSlug + '/') : (btn.getAttribute('data-href') || btn.getAttribute('data-kpi-href'));
                 if (!href) return;
                 const a = document.createElement('a');
                 a.className = btn.className;
@@ -647,18 +651,36 @@
             if (typeof Chart !== 'undefined') return true;
             const existingScript = document.querySelector('script[src*="chart.js"]');
             if (existingScript) {
-                return new Promise((resolve, reject) => {
-                    existingScript.onload = () => resolve(true);
-                    existingScript.onerror = () => reject(false);
-                });
+                try {
+                    return new Promise((resolve, reject) => {
+                        existingScript.onload = () => resolve(true);
+                        existingScript.onerror = () => reject(false);
+                    });
+                } catch (e) {
+                    // Promise not available in this environment; provide minimal thenable
+                    return {
+                        then: function (fn) { existingScript.onload = () => fn(true); existingScript.onerror = () => fn(false); }
+                    };
+                }
             }
-            return new Promise((resolve, reject) => {
+            try {
+                return new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+                    script.onload = () => resolve(true);
+                    script.onerror = () => reject(false);
+                    document.head.appendChild(script);
+                });
+            } catch (e) {
+                // Promise not available — append script and return thenable
                 const script = document.createElement('script');
                 script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
-                script.onload = () => resolve(true);
-                script.onerror = () => reject(false);
+                const thenable = {
+                    then: function (fn) { script.onload = () => fn(true); script.onerror = () => fn(false); }
+                };
                 document.head.appendChild(script);
-            });
+                return thenable;
+            }
         },
 
         async fetchChartData(slug = null) {
@@ -849,7 +871,6 @@
                 btn.addEventListener('click', function (ev) {
                     ev.preventDefault();
                     const input = document.getElementById('data-input');
-                    const slug = document.getElementById('dashboard-slug')?.textContent?.trim();
                     const user = document.getElementById('user')?.textContent?.trim() || 'anonymous';
                     if (!input) return;
                     const val = input.value;
