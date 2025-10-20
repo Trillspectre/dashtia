@@ -310,6 +310,8 @@ As it stands the users would benefit from an account management page to change a
 The SSO sign in options have not been completed
 
 
+Redis I had attempted to install redis for deployment and utilised the free tier Unfortunately I did not finish the configuration but there is a fallback to revert to an in memory channel
+
 ## Deployment
 [Deployed site](https://dashtia-a4f2cf03bc67.herokuapp.com/)
 This website is deployed to Heroku from a GitHub repository, the following steps were taken:
